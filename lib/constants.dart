@@ -12,4 +12,4 @@ const kTax36 = 'Tax36';
 const kRevenueTotal = 'RevenueTotal';
 const kPaymentChannel = 'PaymentChannel';
 
-const kNotAvailable = 'false';
+const kNotAvailable = '0';
