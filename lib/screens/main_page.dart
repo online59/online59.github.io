@@ -312,6 +312,8 @@ class _MainPageState extends State<MainPage> {
                                     Text(
                                         '5) ภาษีหัก ณ ที่จ่าย (ภ.พ.36) จำนวน ${data['Tax36']} บาท\n\n'),
                                     Text(
+                                        '6) ภาษีหัก ณ ที่จ่าย (ภ.พ.30) จำนวน ${data['Tax30']} บาท\n\n'),
+                                    Text(
                                         'REVENUE DEPARTMENT: TOTAL ${data['RevenueTotal']} THB\n\n\n'),
                                     Text(
                                         'ช่องทางการจ่ายชำระเงิน: ${data['PaymentChannel']}\n\n\n'),
@@ -377,7 +379,7 @@ class _MainPageState extends State<MainPage> {
                       return;
                     }
                     
-                    String copyText = '${data['CompanyName']}\n\nMONTH: ${data['Month']}\nTYPE: ${data['Type']}\n\nDETAILS: สำหรับรอบเดือน ${data['Month']} ${data['CompanyName']} มียอดที่ต้องชำระดังต่อไปนี้ค่ะ\n\n1) ภาษีหัก ณ ที่จ่าย (ภ.ง.ด.1) จำนวน ${data['Tax1']} บาท\n2) ภาษีหัก ณ ที่จ่าย (ภ.ง.ด.3) จำนวน ${data['Tax3']} บาท\n3) ภาษีหัก ณ ที่จ่าย (ภ.ง.ด.53) จำนวน ${data['Tax53']} บาท\n4) ภาษีหัก ณ ที่จ่าย (ภ.ง.ด.54) จำนวน ${data['Tax54']} บาท\n5) ภาษีหัก ณ ที่จ่าย (ภ.พ.36) จำนวน ${data['Tax36']} บาท\n\nREVENUE DEPARTMENT: TOTAL ${data['RevenueTotal']} THB\n\n\nช่องทางการจ่ายชำระเงิน: ${data['PaymentChannel']}\n\n\nขอบคุณค่ะ';
+                    String copyText = '${data['CompanyName']}\n\nMONTH: ${data['Month']}\nTYPE: ${data['Type']}\n\nDETAILS: สำหรับรอบเดือน ${data['Month']} ${data['CompanyName']} มียอดที่ต้องชำระดังต่อไปนี้ค่ะ\n\n1) ภาษีหัก ณ ที่จ่าย (ภ.ง.ด.1) จำนวน ${data['Tax1']} บาท\n2) ภาษีหัก ณ ที่จ่าย (ภ.ง.ด.3) จำนวน ${data['Tax3']} บาท\n3) ภาษีหัก ณ ที่จ่าย (ภ.ง.ด.53) จำนวน ${data['Tax53']} บาท\n4) ภาษีหัก ณ ที่จ่าย (ภ.ง.ด.54) จำนวน ${data['Tax54']} บาท\n5) ภาษีหัก ณ ที่จ่าย (ภ.พ.36) จำนวน ${data['Tax36']} บาท\n6) ภาษีหัก ณ ที่จ่าย (ภ.พ.30) จำนวน ${data['Tax30']} บาท\n\nREVENUE DEPARTMENT: TOTAL ${data['RevenueTotal']} THB\n\n\nช่องทางการจ่ายชำระเงิน: ${data['PaymentChannel']}\n\n\nขอบคุณค่ะ';
                     await Clipboard.setData(ClipboardData(text: copyText));
                     _showSnackBar('คัดลอกแล้วไออ้วน', Colors.green);
                   },
