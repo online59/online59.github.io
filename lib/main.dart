@@ -1,4 +1,3 @@
-import 'package:create_message/screens/input_message.dart';
 import 'package:create_message/screens/main_page.dart';
 import 'package:flutter/material.dart';
 

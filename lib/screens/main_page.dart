@@ -1,6 +1,5 @@
 import 'package:create_message/constants.dart';
-import 'package:create_message/screens/input_message.dart';
-import 'package:create_message/screens/message_screen.dart';
+import 'package:create_message/data/tax_data.dart';
 import 'package:create_message/widgets/reusable_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +12,8 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  String outputMessage = '';
+
   String? _companyName;
   String? _month;
   String? _type;
@@ -26,7 +27,8 @@ class _MainPageState extends State<MainPage> {
   String? _tax30;
   String? _tax36;
 
-  Map<String, String> data = {};
+  Map<String, String> companyData = {};
+  Map<String, String> taxData = {};
 
   final _companyNameController = TextEditingController();
   final _monthController = TextEditingController();
@@ -94,23 +96,26 @@ class _MainPageState extends State<MainPage> {
       _showDialog('อ้วน!! ทำไมไม่กรอกให้ครบทุกช่องล่ะ');
     }
 
-    data = {
+    companyData = {
       kCompanyName: _companyName!,
       kMonth: _month!,
       kType: _type!,
+      kRevenueTotal: _revenueTotal!,
+      kPaymentChannel: _paymentChannel!,
+    };
+
+    taxData = {
       kTax1: _tax1 ?? kNotAvailable,
       kTax3: _tax3 ?? kNotAvailable,
       kTax53: _tax53 ?? kNotAvailable,
       kTax54: _tax54 ?? kNotAvailable,
       kTax30: _tax30 ?? kNotAvailable,
       kTax36: _tax36 ?? kNotAvailable,
-      kRevenueTotal: _revenueTotal!,
-      kPaymentChannel: _paymentChannel!,
     };
   }
 
   void clearData() {
-    data.clear();
+    companyData.clear();
 
     _companyNameController.clear();
     _monthController.clear();
@@ -266,6 +271,7 @@ class _MainPageState extends State<MainPage> {
                           ),
                           ReusableTextField(
                             title: 'ช่องทางการจ่ายชำระเงิน*',
+                            maxLine: 8,
                             controller: _paymentChannelController,
                             onChange: (value) {
                               if (value.isEmpty) {
@@ -283,7 +289,7 @@ class _MainPageState extends State<MainPage> {
                 Expanded(
                   child: Container(
                     color: const Color(0xFFE6E6E6),
-                    child: data.isEmpty
+                    child: companyData.isEmpty
                         ? const Center(child: Text('ข้อความ'))
                         : SingleChildScrollView(
                             child: Padding(
@@ -293,31 +299,7 @@ class _MainPageState extends State<MainPage> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('${data['CompanyName']}\n\n'),
-                                    Text('MONTH: ${data['Month']}\n'),
-                                    Text('TYPE: ${data['Type']}\n\n'),
-                                    Text(
-                                        'DETAILS: สำหรับรอบเดือน ${data['Month']} ${data['CompanyName']} '),
-                                    const Text(
-                                      'มียอดที่ต้องชำระดังต่อไปนี้ค่ะ\n\n',
-                                    ),
-                                    Text(
-                                        '1) ภาษีหัก ณ ที่จ่าย (ภ.ง.ด.1) จำนวน ${data['Tax1']} บาท\n'),
-                                    Text(
-                                        '2) ภาษีหัก ณ ที่จ่าย (ภ.ง.ด.3) จำนวน ${data['Tax3']} บาท\n'),
-                                    Text(
-                                        '3) ภาษีหัก ณ ที่จ่าย (ภ.ง.ด.53) จำนวน ${data['Tax53']} บาท\n'),
-                                    Text(
-                                        '4) ภาษีหัก ณ ที่จ่าย (ภ.ง.ด.54) จำนวน ${data['Tax54']} บาท\n'),
-                                    Text(
-                                        '5) ภาษีหัก ณ ที่จ่าย (ภ.พ.36) จำนวน ${data['Tax36']} บาท\n\n'),
-                                    Text(
-                                        '6) ภาษีหัก ณ ที่จ่าย (ภ.พ.30) จำนวน ${data['Tax30']} บาท\n\n'),
-                                    Text(
-                                        'REVENUE DEPARTMENT: TOTAL ${data['RevenueTotal']} THB\n\n\n'),
-                                    Text(
-                                        'ช่องทางการจ่ายชำระเงิน: ${data['PaymentChannel']}\n\n\n'),
-                                    const Text('ขอบคุณค่ะ'),
+                                    generateMessage(),
                                   ],
                                 ),
                               ),
@@ -373,14 +355,12 @@ class _MainPageState extends State<MainPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                   ),
-                  onPressed: () async{
+                  onPressed: () async {
                     if (isNull()) {
                       _showDialog('อ้วน!! ทำไมไม่กรอกให้ครบทุกช่องล่ะ');
                       return;
                     }
-                    
-                    String copyText = '${data['CompanyName']}\n\nMONTH: ${data['Month']}\nTYPE: ${data['Type']}\n\nDETAILS: สำหรับรอบเดือน ${data['Month']} ${data['CompanyName']} มียอดที่ต้องชำระดังต่อไปนี้ค่ะ\n\n1) ภาษีหัก ณ ที่จ่าย (ภ.ง.ด.1) จำนวน ${data['Tax1']} บาท\n2) ภาษีหัก ณ ที่จ่าย (ภ.ง.ด.3) จำนวน ${data['Tax3']} บาท\n3) ภาษีหัก ณ ที่จ่าย (ภ.ง.ด.53) จำนวน ${data['Tax53']} บาท\n4) ภาษีหัก ณ ที่จ่าย (ภ.ง.ด.54) จำนวน ${data['Tax54']} บาท\n5) ภาษีหัก ณ ที่จ่าย (ภ.พ.36) จำนวน ${data['Tax36']} บาท\n6) ภาษีหัก ณ ที่จ่าย (ภ.พ.30) จำนวน ${data['Tax30']} บาท\n\nREVENUE DEPARTMENT: TOTAL ${data['RevenueTotal']} THB\n\n\nช่องทางการจ่ายชำระเงิน: ${data['PaymentChannel']}\n\n\nขอบคุณค่ะ';
-                    await Clipboard.setData(ClipboardData(text: copyText));
+                    await Clipboard.setData(ClipboardData(text: outputMessage));
                     _showSnackBar('คัดลอกแล้วไออ้วน', Colors.green);
                   },
                   child: const Text(
@@ -396,5 +376,40 @@ class _MainPageState extends State<MainPage> {
         ],
       ),
     );
+  }
+
+  Text generateMessage() {
+    List<String> header = [
+      '${companyData['CompanyName']}\n\nMONTH: ${companyData['Month']}\n',
+      'TYPE: ${companyData['Type']}\n\n',
+      'DETAILS: สำหรับรอบเดือน ${companyData['Month']} ${companyData['CompanyName']} มียอดที่ต้องชำระดังต่อไปนี้ค่ะ\n\n',
+    ];
+
+    List<String> taxMessages = [];
+    int index = 1;
+    for (String taxKey in taxData.keys) {
+      if (taxData[taxKey] != '0') {
+        taxMessages.add(
+            '$index) ภาษีหัก ณ ที่จ่าย (${taxInfo[taxKey]}) จำนวน ${taxData[taxKey]} บาท\n');
+        index += 1;
+      }
+    }
+
+    List<String> footer = [
+      '\n',
+      'REVENUE DEPARTMENT: TOTAL ${companyData['RevenueTotal']} THB\n\n\n',
+      'ช่องทางการจ่ายชำระเงิน: ${companyData['PaymentChannel']}\n\n\n',
+      'ขอบคุณค่ะ',
+    ];
+
+    if (taxMessages.isNotEmpty) {
+      header.addAll(taxMessages);
+    }
+
+    header.addAll(footer);
+
+    outputMessage = header.join();
+
+    return Text(outputMessage);
   }
 }

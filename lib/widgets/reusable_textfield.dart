@@ -6,6 +6,8 @@ class ReusableTextField extends StatelessWidget {
   final String title;
   final String? textHint;
   final int? maxLine;
+  final double? height;
+  final double? width;
   final OnChangeCallback onChange;
   final TextEditingController? controller;
 
@@ -16,6 +18,8 @@ class ReusableTextField extends StatelessWidget {
     this.textHint,
     this.maxLine,
     this.controller,
+    this.width,
+    this.height,
   });
 
   @override
@@ -33,6 +37,7 @@ class ReusableTextField extends StatelessWidget {
         ),
         Container(
           width: 300,
+          height: height,
           padding: const EdgeInsets.all(
             10.0,
           ),
