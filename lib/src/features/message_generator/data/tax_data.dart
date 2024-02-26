@@ -1,4 +1,4 @@
-import 'package:create_message/constants.dart';
+import 'package:create_message/src/features/message_generator/constants/constants.dart';
 
 Map<String, String> taxInfo = {
   kTax1: 'ภ.ง.ด.1',

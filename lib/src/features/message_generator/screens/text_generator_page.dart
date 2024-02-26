@@ -1,17 +1,17 @@
-import 'package:create_message/constants.dart';
-import 'package:create_message/data/tax_data.dart';
-import 'package:create_message/widgets/reusable_textfield.dart';
+import 'package:create_message/src/features/message_generator/constants/constants.dart';
+import 'package:create_message/src/features/message_generator/data/tax_data.dart';
+import 'package:create_message/src/features/message_generator/widgets/reusable_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class MainPage extends StatefulWidget {
-  const MainPage({Key? key}) : super(key: key);
+class TextGeneratorPage extends StatefulWidget {
+  const TextGeneratorPage({Key? key}) : super(key: key);
 
   @override
-  State<MainPage> createState() => _MainPageState();
+  State<TextGeneratorPage> createState() => _TextGeneratorPageState();
 }
 
-class _MainPageState extends State<MainPage> {
+class _TextGeneratorPageState extends State<TextGeneratorPage> {
   String outputMessage = '';
 
   String? _companyName;
