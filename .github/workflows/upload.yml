@@ -1,0 +1,19 @@
+name: Upload CSV
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Upload CSV to server
+        run: |
+          mkdir -p uploads
+          echo "${{ secrets.CSV_CONTENT }}" > uploads/checklist.csv
