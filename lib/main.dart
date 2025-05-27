@@ -23,10 +23,10 @@ class MyWebsite extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Ittipon',
       theme: ThemeData(
-        primaryColor: const Color(0xFFFF4F09),
+        primaryColor: const Color(0xFF00C853),
         scaffoldBackgroundColor: Colors.white,
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFFFF4F09),
+          backgroundColor: Color(0xFF00C853),
           centerTitle: true,
           titleTextStyle: TextStyle(
             color: Colors.white,
@@ -41,13 +41,13 @@ class MyWebsite extends StatelessWidget {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFFF4F09),
+            backgroundColor: Color(0xFF00C853),
             foregroundColor: Colors.white,
           ),
         ),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
-            foregroundColor: const Color(0xFFFF4F09),
+            foregroundColor: Color(0xFF00C853),
           ),
         ),
         bottomAppBarTheme: const BottomAppBarTheme(
@@ -56,7 +56,7 @@ class MyWebsite extends StatelessWidget {
           shape: CircularNotchedRectangle(),
         ),
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          backgroundColor: Color(0xFFFF4F09),
+          backgroundColor: Color(0xFF00C853),
           foregroundColor: Colors.white,
           shape: CircleBorder(),
         ),
