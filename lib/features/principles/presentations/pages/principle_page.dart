@@ -4,6 +4,7 @@ import 'package:real_estate_helper/di/injection.dart';
 import 'package:real_estate_helper/features/principles/presentations/bloc/principle_bloc.dart';
 import 'package:real_estate_helper/features/principles/presentations/widgets/principle_card.dart';
 import 'package:real_estate_helper/features/principles/presentations/widgets/principle_dialog.dart';
+import 'package:real_estate_helper/features/principles/domain/entities/principle.dart';
 
 class PrinciplePage extends StatelessWidget {
   final String groupId;
@@ -37,7 +38,7 @@ class PrinciplePage extends StatelessWidget {
                         // Optional: Add your onTap action here, e.g., show details or edit
                       },
                       onLongPress: () {
-                        context.read<PrincipleBloc>().add(DeletePrincipleEvent(principle));
+                        showEditDeletePrincipleDialog(context, principle);
                       },
                     ),
                   );

@@ -4,6 +4,7 @@ import 'package:real_estate_helper/di/injection.dart';
 import 'package:real_estate_helper/features/principle_group/presentations/bloc/group_bloc.dart';
 import 'package:real_estate_helper/features/principle_group/presentations/widgets/group_card.dart';
 import 'package:real_estate_helper/features/principle_group/presentations/widgets/group_dialog.dart';
+import 'package:real_estate_helper/features/principle_group/domain/entities/group.dart';
 import 'package:real_estate_helper/features/principles/presentations/bloc/principle_bloc.dart';
 import 'package:real_estate_helper/features/principles/presentations/pages/principle_page.dart';
 
@@ -23,32 +24,30 @@ class GroupPage extends StatelessWidget {
               if (state.groups.isEmpty) {
                 return const Center(child: Text('No groups found.'));
               }
-              return ListView.builder(
+              return ListView.separated(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 itemCount: state.groups.length,
+                separatorBuilder: (context, index) => const Divider(height: 1, thickness: .7, indent: 20, endIndent: 20),
                 itemBuilder: (context, index) {
                   final group = state.groups[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    child: GroupCard(
-                      title: group.name,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BlocProvider(
-                              create: (_) => sl<PrincipleBloc>()
-                                ..add(FetchPrinciplesEvent(group.id)),
-                              child: PrinciplePage(groupId: group.id),
-                            ),
+                  return GroupCard(
+                    title: group.name,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BlocProvider(
+                            create: (_) => sl<PrincipleBloc>()
+                              ..add(FetchPrinciplesEvent(group.id)),
+                            child: PrinciplePage(groupId: group.id),
                           ),
-                        );
-                      },
-                      onLongPress: () {
-                        context.read<GroupBloc>().add(DeleteGroupEvent(group.id));
-                      },
-                    ),
+                        ),
+                      );
+                    },
+                    onLongPress: () {
+                      showEditDeleteGroupDialog(context, group);
+                    },
                   );
                 },
               );
