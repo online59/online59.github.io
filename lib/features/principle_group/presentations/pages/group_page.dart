@@ -40,7 +40,7 @@ class GroupPage extends StatelessWidget {
                           builder: (context) => BlocProvider(
                             create: (_) => sl<PrincipleBloc>()
                               ..add(FetchPrinciplesEvent(group.id)),
-                            child: PrinciplePage(groupId: group.id),
+                            child: PrinciplePage(group: group),
                           ),
                         ),
                       );
