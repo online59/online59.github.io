@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:real_estate_helper/di/injection.dart';
 import 'package:real_estate_helper/features/home/presentations/pages/home_page.dart';
+import 'package:real_estate_helper/features/passcode/presentations/pages/passcode_page.dart';
 
 import 'firebase_options.dart';
 
@@ -61,7 +62,7 @@ class MyWebsite extends StatelessWidget {
           shape: CircleBorder(),
         ),
       ),
-      home: const HomePage(),
+      home: const PasscodePage(),
     );
   }
 }
