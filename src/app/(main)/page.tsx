@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Smartphone, CodeXml, BrainCircuit, Github, Linkedin, Mail, ExternalLink, Briefcase, GraduationCap } from "lucide-react";
+import { Smartphone, CodeXml, BrainCircuit, Github, Linkedin, Mail, ExternalLink, GraduationCap, Plane } from "lucide-react";
 
 export default function ProfilePage() {
   return (
@@ -12,7 +12,7 @@ export default function ProfilePage() {
         <div className="space-y-4">
           <h1 className="text-5xl md:text-6xl font-bold font-headline text-primary">Devfolio Hub</h1>
           <p className="text-xl text-muted-foreground">
-            A full-stack developer specializing in creating beautiful, functional, and intelligent applications. Explore my skills, tools, and projects.
+            From the aviation industry to full-stack development. I build beautiful, functional, and intelligent applications with a unique perspective.
           </p>
           <div className="flex gap-4 pt-4">
             <Button>Get In Touch <Mail className="ml-2" /></Button>
@@ -130,27 +130,33 @@ export default function ProfilePage() {
       <section className="space-y-8">
         <div className="text-center">
           <h2 className="text-3xl font-bold font-headline">Work Experience</h2>
-          <p className="text-muted-foreground mt-2">My professional journey.</p>
+          <p className="text-muted-foreground mt-2">My professional journey in and out of the cockpit.</p>
         </div>
         <div className="relative pl-6 after:absolute after:inset-y-0 after:w-px after:bg-border after:left-0">
           <div className="space-y-12">
             <div className="relative">
-              <div className="absolute top-0 -left-6 size-5 bg-primary rounded-full border-4 border-background"></div>
-              <h3 className="text-xl font-semibold font-headline">Senior Frontend Developer</h3>
-              <p className="text-sm text-muted-foreground">Innovate Corp | 2020 - Present</p>
-              <p className="mt-2 text-sm">Led the development of a new component library in React, improving code reusability by 40%. Collaborated with UX/UI designers to implement pixel-perfect designs for a major product overhaul.</p>
-            </div>
-            <div className="relative">
-              <div className="absolute top-0 -left-6 size-5 bg-primary rounded-full border-4 border-background"></div>
+              <div className="absolute top-0 -left-6 size-5 bg-primary rounded-full border-4 border-background flex items-center justify-center">
+                <CodeXml className="size-3 text-primary-foreground" />
+              </div>
               <h3 className="text-xl font-semibold font-headline">Full-Stack Developer</h3>
-              <p className="text-sm text-muted-foreground">Tech Solutions Ltd. | 2018 - 2020</p>
-              <p className="mt-2 text-sm">Developed and maintained both client-side and server-side applications for a suite of SaaS products. Optimized database queries which resulted in a 25% reduction in page load times.</p>
+              <p className="text-sm text-muted-foreground">Innovate Corp | 2022 - Present</p>
+              <p className="mt-2 text-sm">Pioneering the future of web applications by bridging my experience in aviation with cutting-edge technology. Building robust and scalable solutions with a focus on user experience and performance.</p>
             </div>
             <div className="relative">
-              <div className="absolute top-0 -left-6 size-5 bg-primary rounded-full border-4 border-background"></div>
-              <h3 className="text-xl font-semibold font-headline">Junior Web Developer</h3>
-              <p className="text-sm text-muted-foreground">Startup Inc. | 2017 - 2018</p>
-              <p className="mt-2 text-sm">Assisted in building and launching the company's first marketing website using HTML, CSS, and JavaScript. Gained foundational experience in a fast-paced agile environment.</p>
+              <div className="absolute top-0 -left-6 size-5 bg-primary rounded-full border-4 border-background flex items-center justify-center">
+                <Plane className="size-3 text-primary-foreground" />
+              </div>
+              <h3 className="text-xl font-semibold font-headline">Aviation Professional</h3>
+              <p className="text-sm text-muted-foreground">Newgen Airways, Bangkok Airways | 2018 - 2022</p>
+              <p className="mt-2 text-sm">Gained extensive experience in airline operations, safety protocols, and team coordination. Honed critical problem-solving skills in high-pressure environments, ensuring operational excellence.</p>
+            </div>
+            <div className="relative">
+             <div className="absolute top-0 -left-6 size-5 bg-primary rounded-full border-4 border-background flex items-center justify-center">
+                <Plane className="size-3 text-primary-foreground" />
+              </div>
+              <h3 className="text-xl font-semibold font-headline">Airport Operations Specialist</h3>
+              <p className="text-sm text-muted-foreground">U-Tapao International Aviation | 2016 - 2018</p>
+              <p className="mt-2 text-sm">Managed ground handling and airport services, contributing to the safe and efficient flow of aircraft and passengers. Developed a keen eye for detail and process optimization.</p>
             </div>
           </div>
         </div>
@@ -159,32 +165,32 @@ export default function ProfilePage() {
       {/* Education Section */}
       <section className="space-y-8">
         <div className="text-center">
-          <h2 className="text-3xl font-bold font-headline">Education</h2>
-          <p className="text-muted-foreground mt-2">My academic background.</p>
+          <h2 className="text-3xl font-bold font-headline">Education & Training</h2>
+          <p className="text-muted-foreground mt-2">My academic and professional foundations.</p>
         </div>
         <div className="grid md:grid-cols-2 gap-6">
           <Card>
             <CardHeader className="flex-row items-center gap-4">
-              <GraduationCap className="size-8 text-primary" />
+              <CodeXml className="size-8 text-primary" />
               <div>
-                <CardTitle className="font-headline">Master of Science in AI</CardTitle>
-                <CardDescription>University of Advanced Tech | 2017</CardDescription>
+                <CardTitle className="font-headline">Full-Stack Development Bootcamp</CardTitle>
+                <CardDescription>Tech Academy | 2022</CardDescription>
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">Specialized in machine learning and natural language processing. Thesis project involved creating a sentiment analysis model for social media data.</p>
+              <p className="text-sm text-muted-foreground">Completed an intensive program covering modern web technologies including React, Node.js, and cloud services, transitioning my skills from aviation to tech.</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex-row items-center gap-4">
               <GraduationCap className="size-8 text-primary" />
               <div>
-                <CardTitle className="font-headline">Bachelor of Science in Computer Science</CardTitle>
-                <CardDescription>State University | 2015</CardDescription>
+                <CardTitle className="font-headline">Aviation Management</CardTitle>
+                <CardDescription>Civil Aviation Training Center</CardDescription>
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">Graduated with honors. Focused on software engineering principles, data structures, and algorithms. President of the coding club.</p>
+              <p className="text-sm text-muted-foreground">Graduated with a comprehensive understanding of airline and airport management, aviation law, and safety regulations. </p>
             </CardContent>
           </Card>
         </div>
@@ -206,3 +212,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    
