@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(value);
@@ -21,53 +22,80 @@ function RealEstateCalculator() {
   const [interestRateYear3, setInterestRateYear3] = useState(3.5);
   const [interestRateDefault, setInterestRateDefault] = useState(6.5);
   const [loanTerm, setLoanTerm] = useState(30);
-  const [propertyTax, setPropertyTax] = useState(0); 
-  const [homeInsurance, setHomeInsurance] = useState(0);
 
-  const { monthlyPayment, totalPayment, loanAmount, amortizationSchedule } = useMemo(() => {
+  const { monthlyPayment, totalPayment, totalInterest, loanAmount, amortizationSchedule } = useMemo(() => {
     const loanAmount = purchasePrice - downPayment;
-    if (loanAmount <= 0) return { monthlyPayment: 0, totalPayment: 0, loanAmount: 0, amortizationSchedule: [] };
+    if (loanAmount <= 0) return { monthlyPayment: 0, totalPayment: 0, totalInterest: 0, loanAmount: 0, amortizationSchedule: [] };
 
-    const numberOfPayments = loanTerm * 12;
     let remainingBalance = loanAmount;
     let schedule = [];
+    let totalInterestPaid = 0;
+    const totalMonths = loanTerm * 12;
 
-    const calculateMonthlyPayment = (principal: number, rate: number, payments: number) => {
-        if (rate === 0) return principal / payments;
-        const monthlyRate = rate / 100 / 12;
-        const numerator = monthlyRate * Math.pow(1 + monthlyRate, payments);
-        const denominator = Math.pow(1 + monthlyRate, payments) - 1;
-        return principal * (numerator / denominator);
+    const calculateMonthlyPayment = (principal: number, annualRate: number, remainingMonths: number) => {
+      if (annualRate <= 0) return principal / remainingMonths;
+      const monthlyRate = annualRate / 100 / 12;
+      if (remainingMonths <= 0) return 0;
+      const payment = principal * (monthlyRate * Math.pow(1 + monthlyRate, remainingMonths)) / (Math.pow(1 + monthlyRate, remainingMonths) - 1);
+      return payment;
     };
     
-    // Use a fixed payment based on default rate for stability, which is common.
-    const fixedMonthlyPayment = calculateMonthlyPayment(loanAmount, interestRateDefault, numberOfPayments);
+    let currentMonthlyPayment = calculateMonthlyPayment(remainingBalance, interestRateYear1, totalMonths);
 
-    for (let i = 1; i <= numberOfPayments; i++) {
+    for (let month = 1; month <= totalMonths; month++) {
         let currentAnnualRate;
-        if (i <= 12) {
+        const remainingMonths = totalMonths - month + 1;
+
+        if (month === 1) {
             currentAnnualRate = interestRateYear1;
-        } else if (i <= 24) {
+            currentMonthlyPayment = calculateMonthlyPayment(remainingBalance, currentAnnualRate, remainingMonths);
+        } else if (month === 13) {
             currentAnnualRate = interestRateYear2;
-        } else if (i <= 36) {
+            currentMonthlyPayment = calculateMonthlyPayment(remainingBalance, currentAnnualRate, remainingMonths);
+        } else if (month === 25) {
+            currentAnnualRate = interestRateYear3;
+            currentMonthlyPayment = calculateMonthlyPayment(remainingBalance, currentAnnualRate, remainingMonths);
+        } else if (month === 37) {
+            currentAnnualRate = interestRateDefault;
+            currentMonthlyPayment = calculateMonthlyPayment(remainingBalance, currentAnnualRate, remainingMonths);
+        } else if (month <= 12) {
+            currentAnnualRate = interestRateYear1;
+        } else if (month <= 24) {
+            currentAnnualRate = interestRateYear2;
+        } else if (month <= 36) {
             currentAnnualRate = interestRateYear3;
         } else {
             currentAnnualRate = interestRateDefault;
         }
-
+        
         const monthlyInterestRate = currentAnnualRate / 100 / 12;
         const interestComponent = remainingBalance * monthlyInterestRate;
-        const principalComponent = fixedMonthlyPayment - interestComponent;
         
+        if (remainingBalance < currentMonthlyPayment) { // Final payment
+            const principalComponent = remainingBalance;
+            remainingBalance = 0;
+            schedule.push({
+                month: month,
+                principal: principalComponent,
+                interest: interestComponent,
+                totalPayment: principalComponent + interestComponent,
+                remainingBalance: 0
+            });
+            totalInterestPaid += interestComponent;
+            break;
+        }
+
+        const principalComponent = currentMonthlyPayment - interestComponent;
         remainingBalance -= principalComponent;
+        totalInterestPaid += interestComponent;
 
         if (remainingBalance < 0) remainingBalance = 0;
 
         schedule.push({
-            month: i,
+            month: month,
             principal: principalComponent,
             interest: interestComponent,
-            totalPayment: fixedMonthlyPayment,
+            totalPayment: currentMonthlyPayment,
             remainingBalance: remainingBalance
         });
 
@@ -75,15 +103,22 @@ function RealEstateCalculator() {
     }
 
     const firstMonthPayment = schedule.length > 0 ? schedule[0].totalPayment : 0;
-    const totalPrincipalAndInterest = schedule.reduce((acc, curr) => acc + curr.totalPayment, 0);
+    const totalPaid = loanAmount + totalInterestPaid;
 
     return { 
-        monthlyPayment: firstMonthPayment + propertyTax + homeInsurance, 
-        totalPayment: totalPrincipalAndInterest,
+        monthlyPayment: firstMonthPayment,
+        totalPayment: totalPaid,
+        totalInterest: totalInterestPaid,
         loanAmount,
         amortizationSchedule: schedule
     };
-  }, [purchasePrice, downPayment, interestRateYear1, interestRateYear2, interestRateYear3, interestRateDefault, loanTerm, propertyTax, homeInsurance]);
+  }, [purchasePrice, downPayment, interestRateYear1, interestRateYear2, interestRateYear3, interestRateDefault, loanTerm]);
+
+  const pieData = [
+      { name: 'Principal', value: loanAmount },
+      { name: 'Interest', value: totalInterest },
+  ];
+  const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))'];
 
   return (
     <Card>
@@ -127,42 +162,59 @@ function RealEstateCalculator() {
           </div>
           <div className="bg-muted/50 rounded-lg p-6 space-y-4">
             <h3 className="text-lg font-semibold font-headline">Your Estimated Payment</h3>
-            <p className="text-sm text-muted-foreground">First month's payment shown below.</p>
+            <p className="text-sm text-muted-foreground">First month's payment shown below. Payments may adjust annually.</p>
             <div className="text-4xl font-bold text-primary">{formatCurrency(monthlyPayment)}/mo</div>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between"><span>Loan Amount:</span> <strong>{formatCurrency(loanAmount)}</strong></div>
-               <div className="flex justify-between"><span>Principal & Interest (1st mo):</span> <strong>{formatCurrency(amortizationSchedule.length > 0 ? amortizationSchedule[0].totalPayment : 0)}</strong></div>
-              <div className="flex justify-between"><span>Property Tax (monthly):</span> <strong>{formatCurrency(propertyTax)}</strong></div>
-              <div className="flex justify-between"><span>Home Insurance (monthly):</span> <strong>{formatCurrency(homeInsurance)}</strong></div>
+              <div className="flex justify-between"><span>Total Interest:</span> <strong>{formatCurrency(totalInterest)}</strong></div>
+              <div className="flex justify-between font-semibold"><span>Total Payment:</span> <strong>{formatCurrency(totalPayment)}</strong></div>
             </div>
           </div>
         </div>
-        <div>
-          <h3 className="text-xl font-semibold font-headline mb-4">Amortization Schedule</h3>
-          <ScrollArea className="h-96 w-full rounded-md border">
-            <Table>
-                <TableHeader className="sticky top-0 bg-card">
-                    <TableRow>
-                    <TableHead>Month</TableHead>
-                    <TableHead className="text-right">Principal</TableHead>
-                    <TableHead className="text-right">Interest</TableHead>
-                    <TableHead className="text-right">Total Payment</TableHead>
-                    <TableHead className="text-right">Remaining Balance</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {amortizationSchedule.map(row => (
-                    <TableRow key={row.month}>
-                        <TableCell>{row.month}</TableCell>
-                        <TableCell className="text-right">{formatCurrency(row.principal)}</TableCell>
-                        <TableCell className="text-right">{formatCurrency(row.interest)}</TableCell>
-                        <TableCell className="text-right">{formatCurrency(row.totalPayment)}</TableCell>
-                        <TableCell className="text-right">{formatCurrency(row.remainingBalance)}</TableCell>
-                    </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-           </ScrollArea>
+        <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div>
+              <h3 className="text-xl font-semibold font-headline mb-4">Amortization Schedule</h3>
+              <ScrollArea className="h-96 w-full rounded-md border">
+                <Table>
+                    <TableHeader className="sticky top-0 bg-card">
+                        <TableRow>
+                        <TableHead>Month</TableHead>
+                        <TableHead className="text-right">Principal</TableHead>
+                        <TableHead className="text-right">Interest</TableHead>
+                        <TableHead className="text-right">Total Payment</TableHead>
+                        <TableHead className="text-right">Remaining Balance</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {amortizationSchedule.map(row => (
+                        <TableRow key={row.month}>
+                            <TableCell>{row.month}</TableCell>
+                            <TableCell className="text-right">{formatCurrency(row.principal)}</TableCell>
+                            <TableCell className="text-right">{formatCurrency(row.interest)}</TableCell>
+                            <TableCell className="text-right">{formatCurrency(row.totalPayment)}</TableCell>
+                            <TableCell className="text-right">{formatCurrency(row.remainingBalance)}</TableCell>
+                        </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+               </ScrollArea>
+            </div>
+             <div>
+                <h3 className="text-xl font-semibold font-headline mb-4 text-center">Loan Breakdown</h3>
+                <div style={{ width: '100%', height: 300 }}>
+                    <ResponsiveContainer>
+                        <PieChart>
+                            <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
+                                {pieData.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                            </Pie>
+                            <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                            <Legend />
+                        </PieChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
         </div>
       </CardContent>
     </Card>
