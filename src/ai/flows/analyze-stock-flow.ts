@@ -3,12 +3,11 @@
  * @fileOverview A stock analysis AI agent.
  *
  * - analyzeStock - A function that analyzes a stock based on user inputs and real-time data.
- * - AnalyzeStockInput - The input type for the analyzeStock function.
- * - AnalyzeStockOutput - The return type for the analyzeStock function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { AnalyzeStockInputSchema, AnalyzeStockOutputSchema, type AnalyzeStockInput, type AnalyzeStockOutput } from './analyze-stock-flow-types';
 
 // Mock functions for tools. In a real scenario, you'd use an API for this.
 async function fetchStockPrice(ticker: string): Promise<number> {
@@ -59,20 +58,6 @@ const getStockNewsTool = ai.defineTool(
   },
   async (input) => await fetchStockNews(input.ticker)
 );
-
-
-export const AnalyzeStockInputSchema = z.object({
-  ticker: z.string().describe('The stock ticker symbol.'),
-  eps: z.string().describe('The current Earnings Per Share (EPS) of the company.'),
-  growthRate: z.string().describe('The user-projected annual growth rate for the next 5 years.'),
-  intrinsicValue: z.string().describe('The intrinsic value calculated by the user\'s DCF model.'),
-});
-export type AnalyzeStockInput = z.infer<typeof AnalyzeStockInputSchema>;
-
-export const AnalyzeStockOutputSchema = z.object({
-  analysis: z.string().describe('A detailed analysis of the stock.'),
-});
-export type AnalyzeStockOutput = z.infer<typeof AnalyzeStockOutputSchema>;
 
 const prompt = ai.definePrompt({
     name: 'stockAnalysisPrompt',

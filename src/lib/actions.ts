@@ -3,7 +3,7 @@
 import { suggestNoteTags } from "@/ai/flows/suggest-note-tags";
 import type { SuggestNoteTagsInput } from "@/ai/flows/suggest-note-tags";
 import { analyzeStock } from "@/ai/flows/analyze-stock-flow";
-import type { AnalyzeStockInput, AnalyzeStockOutput } from "@/ai/flows/analyze-stock-flow";
+import type { AnalyzeStockInput, AnalyzeStockOutput } from "@/ai/flows/analyze-stock-flow-types";
 
 
 export async function getTagSuggestions(input: SuggestNoteTagsInput): Promise<string[]> {
