@@ -36,7 +36,7 @@ function RealEstateCalculator() {
       const monthlyRate = annualRate / 100 / 12;
       if (remainingMonths <= 0) return 0;
       const payment = principal * (monthlyRate * Math.pow(1 + monthlyRate, remainingMonths)) / (Math.pow(1 + monthlyRate, remainingMonths) - 1);
-      return payment;
+      return isNaN(payment) || !isFinite(payment) ? 0 : payment;
     };
     
     let currentMonthlyPayment = calculateMonthlyPayment(remainingBalance, interestRateYear1, totalMonths);
@@ -47,16 +47,16 @@ function RealEstateCalculator() {
 
         if (month === 1) {
             currentAnnualRate = interestRateYear1;
-            currentMonthlyPayment = calculateMonthlyPayment(remainingBalance, currentAnnualRate, remainingMonths);
+            currentMonthlyPayment = calculateMonthlyPayment(remainingBalance, currentAnnualRate, totalMonths);
         } else if (month === 13) {
             currentAnnualRate = interestRateYear2;
-            currentMonthlyPayment = calculateMonthlyPayment(remainingBalance, currentAnnualRate, remainingMonths);
+            currentMonthlyPayment = calculateMonthlyPayment(remainingBalance, currentAnnualRate, totalMonths - 12);
         } else if (month === 25) {
             currentAnnualRate = interestRateYear3;
-            currentMonthlyPayment = calculateMonthlyPayment(remainingBalance, currentAnnualRate, remainingMonths);
+            currentMonthlyPayment = calculateMonthlyPayment(remainingBalance, currentAnnualRate, totalMonths - 24);
         } else if (month === 37) {
             currentAnnualRate = interestRateDefault;
-            currentMonthlyPayment = calculateMonthlyPayment(remainingBalance, currentAnnualRate, remainingMonths);
+            currentMonthlyPayment = calculateMonthlyPayment(remainingBalance, currentAnnualRate, totalMonths - 36);
         } else if (month <= 12) {
             currentAnnualRate = interestRateYear1;
         } else if (month <= 24) {
@@ -70,35 +70,29 @@ function RealEstateCalculator() {
         const monthlyInterestRate = currentAnnualRate / 100 / 12;
         const interestComponent = remainingBalance * monthlyInterestRate;
         
-        if (remainingBalance < currentMonthlyPayment) { // Final payment
-            const principalComponent = remainingBalance;
-            remainingBalance = 0;
-            schedule.push({
-                month: month,
-                principal: principalComponent,
-                interest: interestComponent,
-                totalPayment: principalComponent + interestComponent,
-                remainingBalance: 0
-            });
-            totalInterestPaid += interestComponent;
-            break;
+        let paymentForMonth = currentMonthlyPayment;
+        
+        if (remainingBalance < paymentForMonth) { 
+            paymentForMonth = remainingBalance + interestComponent;
         }
 
-        const principalComponent = currentMonthlyPayment - interestComponent;
-        remainingBalance -= principalComponent;
+        const principalComponent = paymentForMonth - interestComponent;
         totalInterestPaid += interestComponent;
-
-        if (remainingBalance < 0) remainingBalance = 0;
+        remainingBalance -= principalComponent;
+        
+        if (remainingBalance < 0) {
+            remainingBalance = 0;
+        }
 
         schedule.push({
             month: month,
             principal: principalComponent,
             interest: interestComponent,
-            totalPayment: currentMonthlyPayment,
+            totalPayment: paymentForMonth,
             remainingBalance: remainingBalance
         });
 
-        if (remainingBalance === 0) break;
+        if (remainingBalance <= 0) break;
     }
 
     const firstMonthPayment = schedule.length > 0 ? schedule[0].totalPayment : 0;
@@ -144,9 +138,22 @@ function RealEstateCalculator() {
                     <Input id="interestRateYear3" type="number" value={interestRateYear3} onChange={(e) => setInterestRateYear3(Number(e.target.value))} />
                  </div>
             </div>
-            <div className="space-y-2">
-              <Label>Default Interest Rate: {interestRateDefault.toFixed(2)}%</Label>
-              <Slider value={[interestRateDefault]} onValueChange={(v) => setInterestRateDefault(v[0])} max={15} step={0.01} />
+             <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                    <Label htmlFor="defaultInterestRate">Default Interest Rate</Label>
+                    <div className="flex items-center gap-2">
+                        <Input
+                            id="defaultInterestRate"
+                            type="number"
+                            value={interestRateDefault}
+                            onChange={(e) => setInterestRateDefault(Number(e.target.value))}
+                            className="w-24 text-right"
+                            step="0.01"
+                        />
+                        <span>%</span>
+                    </div>
+                </div>
+                <Slider value={[interestRateDefault]} onValueChange={(v) => setInterestRateDefault(v[0])} max={15} step={0.01} />
             </div>
             <div className="space-y-2">
               <Label>Loan Term: {loanTerm} years</Label>
@@ -155,7 +162,7 @@ function RealEstateCalculator() {
           </div>
           <div className="bg-muted/50 rounded-lg p-6 space-y-4">
             <h3 className="text-lg font-semibold font-headline">Your Estimated Payment</h3>
-            <p className="text-sm text-muted-foreground">First month's payment shown below. Payments may adjust annually.</p>
+            <p className="text-sm text-muted-foreground">First month's payment shown below. Payments may adjust.</p>
             <div className="text-4xl font-bold text-primary">{formatCurrency(monthlyPayment)}/mo</div>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between"><span>Loan Amount:</span> <strong>{formatCurrency(loanAmount)}</strong></div>
