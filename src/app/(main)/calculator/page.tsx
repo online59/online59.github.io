@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(value);
@@ -114,12 +113,6 @@ function RealEstateCalculator() {
     };
   }, [purchasePrice, downPayment, interestRateYear1, interestRateYear2, interestRateYear3, interestRateDefault, loanTerm]);
 
-  const pieData = [
-      { name: 'Principal', value: loanAmount },
-      { name: 'Interest', value: totalInterest },
-  ];
-  const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))'];
-
   return (
     <Card>
       <CardHeader>
@@ -171,50 +164,32 @@ function RealEstateCalculator() {
             </div>
           </div>
         </div>
-        <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div>
-              <h3 className="text-xl font-semibold font-headline mb-4">Amortization Schedule</h3>
-              <ScrollArea className="h-96 w-full rounded-md border">
-                <Table>
-                    <TableHeader className="sticky top-0 bg-card">
-                        <TableRow>
-                        <TableHead>Month</TableHead>
-                        <TableHead className="text-right">Principal</TableHead>
-                        <TableHead className="text-right">Interest</TableHead>
-                        <TableHead className="text-right">Total Payment</TableHead>
-                        <TableHead className="text-right">Remaining Balance</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {amortizationSchedule.map(row => (
-                        <TableRow key={row.month}>
-                            <TableCell>{row.month}</TableCell>
-                            <TableCell className="text-right">{formatCurrency(row.principal)}</TableCell>
-                            <TableCell className="text-right">{formatCurrency(row.interest)}</TableCell>
-                            <TableCell className="text-right">{formatCurrency(row.totalPayment)}</TableCell>
-                            <TableCell className="text-right">{formatCurrency(row.remainingBalance)}</TableCell>
-                        </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-               </ScrollArea>
-            </div>
-             <div>
-                <h3 className="text-xl font-semibold font-headline mb-4 text-center">Loan Breakdown</h3>
-                <div style={{ width: '100%', height: 300 }}>
-                    <ResponsiveContainer>
-                        <PieChart>
-                            <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
-                                {pieData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                ))}
-                            </Pie>
-                            <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                            <Legend />
-                        </PieChart>
-                    </ResponsiveContainer>
-                </div>
-            </div>
+        <div>
+          <h3 className="text-xl font-semibold font-headline mb-4">Amortization Schedule</h3>
+          <ScrollArea className="h-96 w-full rounded-md border">
+            <Table>
+                <TableHeader className="sticky top-0 bg-card">
+                    <TableRow>
+                    <TableHead>Month</TableHead>
+                    <TableHead className="text-right">Principal</TableHead>
+                    <TableHead className="text-right">Interest</TableHead>
+                    <TableHead className="text-right">Total Payment</TableHead>
+                    <TableHead className="text-right">Remaining Balance</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {amortizationSchedule.map(row => (
+                    <TableRow key={row.month}>
+                        <TableCell>{row.month}</TableCell>
+                        <TableCell className="text-right">{formatCurrency(row.principal)}</TableCell>
+                        <TableCell className="text-right">{formatCurrency(row.interest)}</TableCell>
+                        <TableCell className="text-right">{formatCurrency(row.totalPayment)}</TableCell>
+                        <TableCell className="text-right">{formatCurrency(row.remainingBalance)}</TableCell>
+                    </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+           </ScrollArea>
         </div>
       </CardContent>
     </Card>
