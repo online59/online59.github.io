@@ -232,15 +232,15 @@ export default function NotesContainer() {
             {groups.map((group) => (
                 <Card key={group.id} className="overflow-hidden">
                     <AccordionItem value={group.id} className="border-b-0">
-                        <div className="flex items-center group/trigger">
-                            <AccordionTrigger className="p-4 hover:no-underline bg-muted/30 flex-1">
+                        <div className="flex items-center group/trigger bg-muted/30">
+                            <AccordionTrigger className="p-4 hover:no-underline flex-1">
                                 <div className="flex items-center gap-2">
                                     <GripVertical className="size-4 text-muted-foreground" />
                                     <span className="font-semibold font-headline">{group.name}</span>
                                     <Badge variant="secondary">{group.notes.length}</Badge>
                                 </div>
                             </AccordionTrigger>
-                            <div className="p-4 bg-muted/30">
+                            <div className="p-4">
                                 <GroupActions 
                                     group={group} 
                                     onEdit={() => handleEditGroup(group)} 

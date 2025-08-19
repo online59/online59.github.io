@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calculator, Home, Notebook, PanelLeft, Plane } from "lucide-react";
+import { Calculator, Home, Notebook, PanelLeft } from "lucide-react";
 import {
   SidebarProvider,
   Sidebar,
@@ -13,6 +13,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarInset,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/icons";
@@ -76,9 +77,7 @@ export default function MainLayout({
       </Sidebar>
       <SidebarInset>
         <header className="flex h-14 items-center gap-4 border-b bg-card px-4 sm:px-6">
-          <Button variant="ghost" size="icon" className="md:hidden" asChild>
-             <PanelLeft />
-          </Button>
+          <SidebarTrigger className="md:hidden" />
           <h1 className="flex-1 text-xl font-semibold font-headline">
             {getPageTitle(pathname)}
           </h1>
@@ -103,5 +102,3 @@ function getPageTitle(pathname: string) {
       return "Devfolio Hub";
   }
 }
-
-    
