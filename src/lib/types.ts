@@ -1,7 +1,8 @@
 export type Note = {
   id: string;
   title: string;
-  content: string;
+  content: string; // was 'doctrine'
+  groupId: string;
   tags: string[];
 };
 

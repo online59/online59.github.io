@@ -15,16 +15,36 @@ import { Badge } from "@/components/ui/badge";
 import { getTagSuggestions } from "@/lib/actions";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { db } from "@/lib/firebase";
+import { ref, onValue, set, remove, push } from "firebase/database";
 
-const initialData: Group[] = [
-  { id: 'group-1', name: 'Work Projects', notes: [
-    { id: 'note-1', title: 'Q3 Mobile App Feature', content: 'Plan and design the new push notification system for the iOS and Android apps. Consider user segmentation and scheduling capabilities.', tags: ['mobile', 'planning'] },
-    { id: 'note-2', title: 'API Security Audit', content: 'Review all public-facing API endpoints for potential security vulnerabilities. Focus on authentication, authorization, and data validation.', tags: ['backend', 'security'] },
-  ]},
-  { id: 'group-2', name: 'Personal Ideas', notes: [
-    { id: 'note-3', title: 'Vacation Planning', content: 'Research destinations for a trip in Southeast Asia. Look into flights, accommodations, and local attractions in Thailand and Vietnam.', tags: ['travel', 'life'] },
-  ]},
-];
+// Helper to transform Firebase data into app data structure
+const transformDataToGroups = (data: any): Group[] => {
+  const fbGroups = data.groups || {};
+  const fbPrinciples = data.principles || {};
+
+  const principlesByGroup: { [key: string]: any[] } = {};
+  Object.values(fbPrinciples).forEach((p: any) => {
+    if (!principlesByGroup[p.groupId]) {
+      principlesByGroup[p.groupId] = [];
+    }
+    principlesByGroup[p.groupId].push(p);
+  });
+  
+  const groupsArray: Group[] = Object.values(fbGroups).map((group: any) => ({
+    id: group.id,
+    name: group.name,
+    notes: (principlesByGroup[group.id] || []).map((p: any) => ({
+      id: p.id,
+      title: p.doctrine.substring(0, 40) + (p.doctrine.length > 40 ? '...' : ''),
+      content: p.doctrine,
+      groupId: p.groupId,
+      tags: [], // Tags are not in the JSON structure
+    })),
+  }));
+
+  return groupsArray;
+};
 
 
 export default function NotesContainer() {
@@ -35,21 +55,23 @@ export default function NotesContainer() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Load from localStorage or use initialData
-    const savedData = localStorage.getItem('notesData');
-    if (savedData) {
-      setGroups(JSON.parse(savedData));
-    } else {
-      setGroups(initialData);
-    }
     setIsClient(true);
-  }, []);
+    const notesRef = ref(db, '/');
+    const unsubscribe = onValue(notesRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setGroups(transformDataToGroups(data));
+      } else {
+        setGroups([]);
+      }
+    }, (error) => {
+      console.error(error);
+      toast({ title: "Error fetching notes", description: "Could not retrieve data from Firebase.", variant: "destructive" });
+    });
 
-  useEffect(() => {
-    if(isClient) {
-      localStorage.setItem('notesData', JSON.stringify(groups));
-    }
-  }, [groups, isClient]);
+    return () => unsubscribe();
+  }, [toast]);
+
 
   const handleAddNote = () => {
     setEditingNote(null);
@@ -61,77 +83,57 @@ export default function NotesContainer() {
     setSheetOpen(true);
   }
 
-  const handleDeleteNote = (noteId: string, groupId: string) => {
-    setGroups(prevGroups => prevGroups.map(group => {
-      if (group.id === groupId) {
-        return { ...group, notes: group.notes.filter(note => note.id !== noteId) };
-      }
-      return group;
-    }));
-    toast({ title: "Note deleted successfully." });
+  const handleDeleteNote = (noteId: string) => {
+    remove(ref(db, `/principles/${noteId}`))
+      .then(() => toast({ title: "Note deleted successfully." }))
+      .catch((e) => toast({ title: "Error deleting note", description: e.message, variant: 'destructive'}));
   };
   
   const handleMoveNote = (noteId: string, fromGroupId: string, toGroupId: string) => {
     if(fromGroupId === toGroupId) return;
-
-    let noteToMove: Note | undefined;
-    const newGroups = groups.map(group => {
-        if(group.id === fromGroupId){
-            noteToMove = group.notes.find(n => n.id === noteId);
-            return {...group, notes: group.notes.filter(n => n.id !== noteId)};
-        }
-        return group;
-    }).map(group => {
-        if(group.id === toGroupId && noteToMove){
-            return {...group, notes: [...group.notes, noteToMove]};
-        }
-        return group;
-    });
-
-    setGroups(newGroups.filter(g => g !== undefined) as Group[]);
-    toast({ title: "Note moved." });
+    set(ref(db, `/principles/${noteId}/groupId`), toGroupId)
+     .then(() => toast({ title: "Note moved." }))
+     .catch((e) => toast({ title: "Error moving note", description: e.message, variant: 'destructive'}));
   }
 
   const handleSaveNote = (note: Note, groupId: string) => {
-    if (editingNote) { // Editing
-      setGroups(prev => prev.map(g => {
-        if (g.id === editingNote.groupId) {
-          if (editingNote.groupId === groupId) {
-            return { ...g, notes: g.notes.map(n => n.id === note.id ? note : n) };
-          } else {
-             return { ...g, notes: g.notes.filter(n => n.id !== note.id) };
-          }
-        }
-        if (g.id === groupId && editingNote.groupId !== groupId) {
-            return {...g, notes: [...g.notes, note]};
-        }
-        return g;
-      }));
-      toast({ title: "Note updated successfully." });
-    } else { // Creating
-      setGroups(prev => prev.map(g => {
-        if (g.id === groupId) {
-          return { ...g, notes: [...g.notes, { ...note, id: `note-${Date.now()}` }] };
-        }
-        return g;
-      }));
-      toast({ title: "Note created successfully." });
-    }
-    setEditingNote(null);
-    setSheetOpen(false);
+    const isEditing = !!note.id;
+    const noteId = isEditing ? note.id : push(ref(db, '/principles')).key;
+    if (!noteId) return;
+
+    const noteData = {
+      id: noteId,
+      doctrine: note.content,
+      groupId: groupId,
+    };
+    
+    set(ref(db, `/principles/${noteId}`), noteData)
+      .then(() => {
+        toast({ title: isEditing ? "Note updated successfully." : "Note created successfully." });
+        setSheetOpen(false);
+        setEditingNote(null);
+      })
+      .catch((e) => toast({ title: "Error saving note", description: e.message, variant: 'destructive' }));
   };
+
 
   const handleAddGroup = (name: string) => {
     if (name.trim()) {
-      const newGroup: Group = { id: `group-${Date.now()}`, name, notes: [] };
-      setGroups(prev => [...prev, newGroup]);
-      toast({ title: "Group added." });
+      const groupId = push(ref(db, '/groups')).key;
+      if (!groupId) return;
+      const newGroup = { id: groupId, name };
+      set(ref(db, `/groups/${groupId}`), newGroup)
+        .then(() => toast({ title: "Group added." }))
+        .catch((e) => toast({ title: "Error adding group", description: e.message, variant: 'destructive'}));
     }
   };
 
   const handleDeleteGroup = (groupId: string) => {
-    setGroups(prev => prev.filter(g => g.id !== groupId));
-    toast({ title: "Group deleted." });
+    // Note: This only deletes the group, not the notes within it.
+    // A more robust solution would handle orphaned notes.
+    remove(ref(db, `/groups/${groupId}`))
+      .then(() => toast({ title: "Group deleted." }))
+      .catch((e) => toast({ title: "Error deleting group", description: e.message, variant: 'destructive'}));
   }
 
   if (!isClient) {
@@ -190,7 +192,7 @@ export default function NotesContainer() {
   );
 }
 
-function NoteCard({note, groupId, onEdit, onDelete, onMove, allGroups} : {note: Note, groupId: string, onEdit: (note: Note, groupId: string) => void, onDelete: (noteId: string, groupId: string) => void, onMove: (noteId: string, fromGroupId: string, toGroupId: string) => void, allGroups: Group[]}) {
+function NoteCard({note, groupId, onEdit, onDelete, onMove, allGroups} : {note: Note, groupId: string, onEdit: (note: Note, groupId: string) => void, onDelete: (noteId: string) => void, onMove: (noteId: string, fromGroupId: string, toGroupId: string) => void, allGroups: Group[]}) {
     return (
         <Card className="flex flex-col">
             <CardHeader>
@@ -199,7 +201,7 @@ function NoteCard({note, groupId, onEdit, onDelete, onMove, allGroups} : {note: 
             </CardHeader>
             <CardContent className="flex-grow">
                 <div className="flex flex-wrap gap-2">
-                    {note.tags.map(tag => <Badge key={tag} variant="outline">{tag}</Badge>)}
+                    {/* Tags are disabled as they are not in the new data structure */}
                 </div>
             </CardContent>
             <CardFooter className="justify-end">
@@ -232,12 +234,12 @@ function NoteCard({note, groupId, onEdit, onDelete, onMove, allGroups} : {note: 
                                 <AlertDialogHeader>
                                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete the note titled "{note.title}".
+                                    This action cannot be undone. This will permanently delete the note.
                                 </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => onDelete(note.id, groupId)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                                <AlertDialogAction onClick={() => onDelete(note.id)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
                                 </AlertDialogFooter>
                             </AlertDialogContent>
                         </AlertDialog>
@@ -252,46 +254,27 @@ function NoteForm({isOpen, setIsOpen, onSave, noteToEdit, groups}: {isOpen: bool
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [selectedGroupId, setSelectedGroupId] = useState('');
-  const [tags, setTags] = useState<string[]>([]);
-  const [tagInput, setTagInput] = useState('');
-  const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
-  const [isPending, startTransition] = useTransition();
-
+  
   useEffect(() => {
     if (noteToEdit) {
       setTitle(noteToEdit.note.title);
       setContent(noteToEdit.note.content);
       setSelectedGroupId(noteToEdit.groupId);
-      setTags(noteToEdit.note.tags);
     } else {
       setTitle('');
       setContent('');
       setSelectedGroupId(groups.length > 0 ? groups[0].id : '');
-      setTags([]);
     }
-    setSuggestedTags([]);
   }, [noteToEdit, isOpen, groups]);
 
-  const handleSuggestTags = () => {
-    if (!content) return;
-    startTransition(async () => {
-      const result = await getTagSuggestions({ noteContent: content });
-      setSuggestedTags(result.filter(t => !tags.includes(t)));
-    });
-  }
-
-  const handleAddTag = (tag: string) => {
-    if (tag && !tags.includes(tag)) {
-        setTags(prev => [...prev, tag]);
-    }
-  }
-
   const handleSave = () => {
+    // The title is derived from content, so we only need to save content.
     const note: Note = {
       id: noteToEdit?.note.id || '', // ID will be generated in parent for new notes
-      title,
+      title: content.substring(0, 40) + (content.length > 40 ? '...' : ''),
       content,
-      tags
+      groupId: selectedGroupId,
+      tags: []
     };
     onSave(note, selectedGroupId);
   }
@@ -305,61 +288,16 @@ function NoteForm({isOpen, setIsOpen, onSave, noteToEdit, groups}: {isOpen: bool
         </SheetHeader>
         <div className="space-y-4 py-4">
             <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
-                <Input id="title" value={title} onChange={e => setTitle(e.target.value)} />
-            </div>
-            <div className="space-y-2">
                 <Label htmlFor="group">Group</Label>
                 <select id="group" value={selectedGroupId} onChange={e => setSelectedGroupId(e.target.value)} className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
                     {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
                 </select>
             </div>
             <div className="space-y-2">
-                <Label htmlFor="content">Content</Label>
+                <Label htmlFor="content">Content (Doctrine)</Label>
                 <Textarea id="content" value={content} onChange={e => setContent(e.target.value)} rows={8}/>
             </div>
-            <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                    <Label>Tags</Label>
-                    <Button variant="ghost" size="sm" onClick={handleSuggestTags} disabled={isPending || !content}>
-                        {isPending ? <Loader2 className="mr-2 size-4 animate-spin"/> : <Wand2 className="mr-2 size-4" />}
-                        Suggest Tags
-                    </Button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                    {tags.map(tag => (
-                        <Badge key={tag} variant="secondary" className="pr-1">
-                            {tag}
-                            <button onClick={() => setTags(tags.filter(t => t !== tag))} className="ml-1 rounded-full p-0.5 hover:bg-destructive/20 text-destructive">&times;</button>
-                        </Badge>
-                    ))}
-                </div>
-                {suggestedTags.length > 0 && (
-                    <div className="p-2 bg-muted/50 rounded-md">
-                        <p className="text-xs mb-2 text-muted-foreground">Suggestions:</p>
-                        <div className="flex flex-wrap gap-2">
-                            {suggestedTags.map(tag => (
-                                <Badge key={tag} variant="outline" className="cursor-pointer hover:bg-accent" onClick={() => {
-                                    handleAddTag(tag);
-                                    setSuggestedTags(suggestedTags.filter(t => t !== tag));
-                                }}>
-                                    <Plus className="mr-1 size-3"/>{tag}
-                                </Badge>
-                            ))}
-                        </div>
-                    </div>
-                )}
-                 <div className="flex items-center gap-2">
-                    <Input placeholder="Add a new tag..." value={tagInput} onChange={e => setTagInput(e.target.value)} onKeyDown={e => {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            handleAddTag(tagInput);
-                            setTagInput('');
-                        }
-                    }}/>
-                    <Button variant="outline" onClick={() => { handleAddTag(tagInput); setTagInput(''); }}>Add Tag</Button>
-                </div>
-            </div>
+             {/* Tag functionality is removed as it's not in the new data structure */}
         </div>
         <SheetFooter>
             <SheetClose asChild>
