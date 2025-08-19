@@ -133,18 +133,30 @@ export default function NotesContainer() {
     }
 
     const noteData = {
-      id: noteId,
       doctrine: note.content,
       groupId: groupId,
+      id: noteId
     };
     
-    set(noteRef, noteData)
-      .then(() => {
-        toast({ title: isEditing ? "Note updated successfully." : "Note created successfully." });
-        setNoteSheetOpen(false);
-        setEditingNote(null);
-      })
-      .catch((e) => toast({ title: "Error saving note", description: e.message, variant: 'destructive' }));
+    // For a new note, we need to create it with push() first to get the key, then set the full data.
+    // For an existing note, we just update it.
+    if(isEditing){
+        update(ref(db, `/principles/${note.id}`), noteData)
+          .then(() => {
+            toast({ title: "Note updated successfully." });
+            setNoteSheetOpen(false);
+            setEditingNote(null);
+          })
+          .catch((e) => toast({ title: "Error saving note", description: e.message, variant: 'destructive' }));
+    } else {
+        set(noteRef, noteData)
+          .then(() => {
+            toast({ title: "Note created successfully." });
+            setNoteSheetOpen(false);
+            setEditingNote(null);
+          })
+          .catch((e) => toast({ title: "Error saving note", description: e.message, variant: 'destructive' }));
+    }
   };
 
   const handleAddGroup = () => {
@@ -310,16 +322,10 @@ function GroupActions({ group, onEdit, onDelete }: { group: Group, onEdit: () =>
 function NoteCard({note, groupId, onEdit, onDelete, onMove, allGroups} : {note: Note, groupId: string, onEdit: (note: Note, groupId: string) => void, onDelete: (noteId: string) => void, onMove: (noteId: string, fromGroupId: string, toGroupId: string) => void, allGroups: Group[]}) {
     return (
         <Card className="flex flex-col">
-            <CardHeader>
-                <CardTitle className="text-base font-medium">{note.title}</CardTitle>
-                <CardDescription className="line-clamp-3 text-sm">{note.content}</CardDescription>
-            </CardHeader>
-            <CardContent className="flex-grow">
-                <div className="flex flex-wrap gap-2">
-                    {/* Tags are disabled as they are not in the new data structure */}
-                </div>
+            <CardContent className="flex-grow p-4">
+                <p className="text-sm">{note.content}</p>
             </CardContent>
-            <CardFooter className="justify-end">
+            <CardFooter className="justify-end p-2">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon"><MoreVertical className="size-4" /></Button>

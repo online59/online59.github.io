@@ -10,7 +10,7 @@ const firebaseConfig = {
   authDomain: "devfolio-hub.firebaseapp.com",
   measurementId: "",
   messagingSenderId: "988410147328",
-  databaseURL: "https://devfolio-hub-default-rtdb.firebaseio.com",
+  databaseURL: "https://devfolio-hub-default-rtdb.asia-southeast1.firebasedatabase.app/",
 };
 
 // Initialize Firebase
