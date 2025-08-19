@@ -104,7 +104,7 @@ export default function NotesContainer() {
   
   const handleMoveNote = (noteId: string, fromGroupId: string, toGroupId: string) => {
     if(fromGroupId === toGroupId) return;
-    set(ref(db, `/principles/${noteId}/groupId`), toGroupId)
+    update(ref(db, `/principles/${noteId}`), { groupId: toGroupId })
      .then(() => toast({ title: "Note moved." }))
      .catch((e) => toast({ title: "Error moving note", description: e.message, variant: 'destructive'}));
   }
@@ -154,8 +154,7 @@ export default function NotesContainer() {
             })
            .catch((e) => toast({ title: "Error updating group", description: e.message, variant: 'destructive'}));
       } else { // Creating new group
-          const groupId = push(ref(db, '/groups')).key;
-          if (!groupId) return;
+          const groupId = Date.now().toString();
           const newGroup = { id: groupId, name: groupName };
           set(ref(db, `/groups/${groupId}`), newGroup)
             .then(() => {
@@ -358,6 +357,11 @@ function NoteForm({isOpen, setIsOpen, onSave, noteToEdit, groups}: {isOpen: bool
   }, [noteToEdit, isOpen, groups]);
 
   const handleSave = () => {
+    if (!selectedGroupId) {
+      // You might want to show a toast message here
+      console.error("No group selected");
+      return;
+    }
     // The title is derived from content, so we only need to save content.
     const note: Note = {
       id: noteToEdit?.note.id || '', // ID will be generated in parent for new notes
@@ -437,3 +441,5 @@ function GroupDialog({isOpen, setIsOpen, onSave, groupToEdit}: {isOpen: boolean,
     </Dialog>
   );
 }
+
+    

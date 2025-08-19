@@ -11,3 +11,5 @@ export type Group = {
   name: string;
   notes: Note[];
 };
+
+    
