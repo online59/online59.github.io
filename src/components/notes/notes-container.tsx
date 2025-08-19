@@ -26,24 +26,28 @@ const transformDataToGroups = (data: any): Group[] => {
 
   const principlesByGroup: { [key: string]: any[] } = {};
   Object.values(fbPrinciples).forEach((p: any) => {
+    if (!p.groupId) return; // Skip principles without a groupId
     if (!principlesByGroup[p.groupId]) {
       principlesByGroup[p.groupId] = [];
     }
     principlesByGroup[p.groupId].push(p);
   });
-  
-  const groupsArray: Group[] = Object.values(fbGroups).map((group: any) => ({
-    id: group.id,
-    name: group.name,
-    notes: (principlesByGroup[group.id] || []).map((p: any) => ({
-      id: p.id,
-      title: p.doctrine.substring(0, 40) + (p.doctrine.length > 40 ? '...' : ''),
-      content: p.doctrine,
-      groupId: p.groupId,
-      tags: [], // Tags are not in the JSON structure
-    })),
-  }));
 
+  const groupsArray: Group[] = Object.keys(fbGroups).map((groupId) => {
+    const group = fbGroups[groupId];
+    return {
+      id: group.id,
+      name: group.name,
+      notes: (principlesByGroup[group.id] || []).map((p: any) => ({
+        id: p.id,
+        title: p.doctrine.substring(0, 40) + (p.doctrine.length > 40 ? '...' : ''),
+        content: p.doctrine,
+        groupId: p.groupId,
+        tags: [], // Tags are not in the JSON structure
+      })),
+    };
+  });
+  
   // Sort groups by name, handling potential numeric prefixes
   groupsArray.sort((a, b) => {
     const aName = a.name.match(/^(\d+)\./) ? parseInt(a.name.match(/^(\d+)\./)![1]) : a.name;
@@ -441,5 +445,3 @@ function GroupDialog({isOpen, setIsOpen, onSave, groupToEdit}: {isOpen: boolean,
     </Dialog>
   );
 }
-
-    
