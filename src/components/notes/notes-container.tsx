@@ -5,9 +5,10 @@ import type { Group, Note } from "@/lib/types";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, MoreVertical, Trash2, Edit, Loader2, Wand2, Tag, ChevronRight, GripVertical } from "lucide-react";
+import { Plus, MoreVertical, Trash2, Edit, Loader2, Wand2, Tag, ChevronRight, GripVertical, Settings } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, SheetClose } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuPortal, DropdownMenuSubContent, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,7 +17,7 @@ import { getTagSuggestions } from "@/lib/actions";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { db } from "@/lib/firebase";
-import { ref, onValue, set, remove, push } from "firebase/database";
+import { ref, onValue, set, remove, push, update } from "firebase/database";
 
 // Helper to transform Firebase data into app data structure
 const transformDataToGroups = (data: any): Group[] => {
@@ -43,6 +44,16 @@ const transformDataToGroups = (data: any): Group[] => {
     })),
   }));
 
+  // Sort groups by name, handling potential numeric prefixes
+  groupsArray.sort((a, b) => {
+    const aName = a.name.match(/^(\d+)\./) ? parseInt(a.name.match(/^(\d+)\./)![1]) : a.name;
+    const bName = b.name.match(/^(\d+)\./) ? parseInt(b.name.match(/^(\d+)\./)![1]) : b.name;
+    if (typeof aName === 'number' && typeof bName === 'number') {
+      return aName - bName;
+    }
+    return String(aName).localeCompare(String(bName));
+  });
+
   return groupsArray;
 };
 
@@ -50,8 +61,10 @@ const transformDataToGroups = (data: any): Group[] => {
 export default function NotesContainer() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [isClient, setIsClient] = useState(false);
-  const [isSheetOpen, setSheetOpen] = useState(false);
+  const [isNoteSheetOpen, setNoteSheetOpen] = useState(false);
+  const [isGroupDialogOpen, setGroupDialogOpen] = useState(false);
   const [editingNote, setEditingNote] = useState<{note: Note, groupId: string} | null>(null);
+  const [editingGroup, setEditingGroup] = useState<Group | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -75,12 +88,12 @@ export default function NotesContainer() {
 
   const handleAddNote = () => {
     setEditingNote(null);
-    setSheetOpen(true);
+    setNoteSheetOpen(true);
   };
 
   const handleEditNote = (note: Note, groupId: string) => {
     setEditingNote({ note, groupId });
-    setSheetOpen(true);
+    setNoteSheetOpen(true);
   }
 
   const handleDeleteNote = (noteId: string) => {
@@ -110,28 +123,55 @@ export default function NotesContainer() {
     set(ref(db, `/principles/${noteId}`), noteData)
       .then(() => {
         toast({ title: isEditing ? "Note updated successfully." : "Note created successfully." });
-        setSheetOpen(false);
+        setNoteSheetOpen(false);
         setEditingNote(null);
       })
       .catch((e) => toast({ title: "Error saving note", description: e.message, variant: 'destructive' }));
   };
 
-
-  const handleAddGroup = (name: string) => {
-    if (name.trim()) {
-      const groupId = push(ref(db, '/groups')).key;
-      if (!groupId) return;
-      const newGroup = { id: groupId, name };
-      set(ref(db, `/groups/${groupId}`), newGroup)
-        .then(() => toast({ title: "Group added." }))
-        .catch((e) => toast({ title: "Error adding group", description: e.message, variant: 'destructive'}));
-    }
+  const handleAddGroup = () => {
+    setEditingGroup(null);
+    setGroupDialogOpen(true);
   };
 
-  const handleDeleteGroup = (groupId: string) => {
-    // Note: This only deletes the group, not the notes within it.
-    // A more robust solution would handle orphaned notes.
-    remove(ref(db, `/groups/${groupId}`))
+  const handleEditGroup = (group: Group) => {
+    setEditingGroup(group);
+    setGroupDialogOpen(true);
+  }
+
+  const handleSaveGroup = (groupName: string) => {
+      if (groupName.trim() === '') {
+        toast({ title: "Group name cannot be empty", variant: "destructive" });
+        return;
+      }
+
+      if (editingGroup) { // Editing existing group
+          update(ref(db, `/groups/${editingGroup.id}`), { name: groupName })
+           .then(() => {
+                toast({ title: "Group updated." });
+                setGroupDialogOpen(false);
+                setEditingGroup(null);
+            })
+           .catch((e) => toast({ title: "Error updating group", description: e.message, variant: 'destructive'}));
+      } else { // Creating new group
+          const groupId = push(ref(db, '/groups')).key;
+          if (!groupId) return;
+          const newGroup = { id: groupId, name: groupName };
+          set(ref(db, `/groups/${groupId}`), newGroup)
+            .then(() => {
+                toast({ title: "Group added." });
+                setGroupDialogOpen(false);
+            })
+            .catch((e) => toast({ title: "Error adding group", description: e.message, variant: 'destructive'}));
+      }
+  };
+
+  const handleDeleteGroup = (group: Group) => {
+    if(group.notes.length > 0) {
+        toast({ title: "Cannot delete group", description: "Please move or delete all notes in this group first.", variant: "destructive" });
+        return;
+    }
+    remove(ref(db, `/groups/${group.id}`))
       .then(() => toast({ title: "Group deleted." }))
       .catch((e) => toast({ title: "Error deleting group", description: e.message, variant: 'destructive'}));
   }
@@ -148,20 +188,32 @@ export default function NotesContainer() {
     <div className="space-y-4">
         <div className="flex justify-between items-center">
             <p className="text-muted-foreground">Organize your thoughts, ideas, and projects.</p>
-            <Button onClick={handleAddNote}><Plus className="mr-2" />Add Note</Button>
+            <div className="flex gap-2">
+                <Button variant="outline" onClick={handleAddGroup}><Plus className="mr-2" />Add Group</Button>
+                <Button onClick={handleAddNote}><Plus className="mr-2" />Add Note</Button>
+            </div>
         </div>
 
         <Accordion type="multiple" defaultValue={groups.map(g => g.id)} className="w-full space-y-2">
             {groups.map((group) => (
                 <Card key={group.id} className="overflow-hidden">
                     <AccordionItem value={group.id} className="border-b-0">
-                        <AccordionTrigger className="p-4 hover:no-underline bg-muted/30">
-                            <div className="flex items-center gap-2">
-                                <GripVertical className="size-4 text-muted-foreground" />
-                                <span className="font-semibold font-headline">{group.name}</span>
-                                <Badge variant="secondary">{group.notes.length}</Badge>
+                        <div className="flex items-center group/trigger">
+                            <AccordionTrigger className="p-4 hover:no-underline bg-muted/30 flex-1">
+                                <div className="flex items-center gap-2">
+                                    <GripVertical className="size-4 text-muted-foreground" />
+                                    <span className="font-semibold font-headline">{group.name}</span>
+                                    <Badge variant="secondary">{group.notes.length}</Badge>
+                                </div>
+                            </AccordionTrigger>
+                            <div className="p-4 bg-muted/30">
+                                <GroupActions 
+                                    group={group} 
+                                    onEdit={() => handleEditGroup(group)} 
+                                    onDelete={() => handleDeleteGroup(group)} 
+                                />
                             </div>
-                        </AccordionTrigger>
+                        </div>
                         <AccordionContent className="p-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                             {group.notes.map(note => (
                                 <NoteCard 
@@ -182,22 +234,63 @@ export default function NotesContainer() {
         </Accordion>
         
         <NoteForm 
-          isOpen={isSheetOpen}
-          setIsOpen={setSheetOpen}
+          isOpen={isNoteSheetOpen}
+          setIsOpen={setNoteSheetOpen}
           onSave={handleSaveNote}
           noteToEdit={editingNote}
           groups={groups}
         />
+
+        <GroupDialog
+          isOpen={isGroupDialogOpen}
+          setIsOpen={setGroupDialogOpen}
+          onSave={handleSaveGroup}
+          groupToEdit={editingGroup}
+        />
     </div>
   );
+}
+
+function GroupActions({ group, onEdit, onDelete }: { group: Group, onEdit: () => void, onDelete: () => void }) {
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon"><Settings className="size-4" /></Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={onEdit}><Edit className="mr-2 size-4"/>Edit Name</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                 <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                            <Trash2 className="mr-2 size-4"/>Delete Group
+                        </DropdownMenuItem>
+                    </AlertDialogTrigger>
+                     <AlertDialogContent>
+                        <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete the group "{group.name}".
+                            You can only delete a group if it has no notes in it.
+                        </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={onDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
 }
 
 function NoteCard({note, groupId, onEdit, onDelete, onMove, allGroups} : {note: Note, groupId: string, onEdit: (note: Note, groupId: string) => void, onDelete: (noteId: string) => void, onMove: (noteId: string, fromGroupId: string, toGroupId: string) => void, allGroups: Group[]}) {
     return (
         <Card className="flex flex-col">
             <CardHeader>
-                <CardTitle>{note.title}</CardTitle>
-                <CardDescription className="line-clamp-3">{note.content}</CardDescription>
+                <CardTitle className="text-base font-medium">{note.title}</CardTitle>
+                <CardDescription className="line-clamp-3 text-sm">{note.content}</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
                 <div className="flex flex-wrap gap-2">
@@ -251,17 +344,14 @@ function NoteCard({note, groupId, onEdit, onDelete, onMove, allGroups} : {note: 
 }
 
 function NoteForm({isOpen, setIsOpen, onSave, noteToEdit, groups}: {isOpen: boolean, setIsOpen: (open: boolean) => void, onSave: (note: Note, groupId: string) => void, noteToEdit: {note: Note, groupId: string} | null, groups: Group[]}) {
-  const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [selectedGroupId, setSelectedGroupId] = useState('');
   
   useEffect(() => {
     if (noteToEdit) {
-      setTitle(noteToEdit.note.title);
       setContent(noteToEdit.note.content);
       setSelectedGroupId(noteToEdit.groupId);
     } else {
-      setTitle('');
       setContent('');
       setSelectedGroupId(groups.length > 0 ? groups[0].id : '');
     }
@@ -297,7 +387,6 @@ function NoteForm({isOpen, setIsOpen, onSave, noteToEdit, groups}: {isOpen: bool
                 <Label htmlFor="content">Content (Doctrine)</Label>
                 <Textarea id="content" value={content} onChange={e => setContent(e.target.value)} rows={8}/>
             </div>
-             {/* Tag functionality is removed as it's not in the new data structure */}
         </div>
         <SheetFooter>
             <SheetClose asChild>
@@ -308,4 +397,43 @@ function NoteForm({isOpen, setIsOpen, onSave, noteToEdit, groups}: {isOpen: bool
       </SheetContent>
     </Sheet>
   )
+}
+
+function GroupDialog({isOpen, setIsOpen, onSave, groupToEdit}: {isOpen: boolean, setIsOpen: (open: boolean) => void, onSave: (name: string) => void, groupToEdit: Group | null}) {
+  const [name, setName] = useState('');
+
+  useEffect(() => {
+    if(groupToEdit) {
+        setName(groupToEdit.name);
+    } else {
+        setName('');
+    }
+  }, [groupToEdit, isOpen]);
+
+  const handleSave = () => {
+    onSave(name);
+  };
+  
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle className="font-headline">{groupToEdit ? "Edit Group" : "Create Group"}</DialogTitle>
+                <DialogDescription>
+                    Enter a name for your group.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-2">
+                <Label htmlFor="group-name">Group Name</Label>
+                <Input id="group-name" value={name} onChange={e => setName(e.target.value)} />
+            </div>
+            <DialogFooter>
+                <DialogClose asChild>
+                    <Button variant="outline">Cancel</Button>
+                </DialogClose>
+                <Button onClick={handleSave}>Save</Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
+  );
 }
