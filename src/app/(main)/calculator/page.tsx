@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useTransition } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
@@ -8,9 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { BrainCircuit, Loader2 } from 'lucide-react';
+import { analyzeStock } from '@/ai/flows/analyze-stock-flow';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(value);
+const formatCurrency = (value: number, currency = 'THB') => {
+  return new Intl.NumberFormat('th-TH', { style: 'currency', currency: currency }).format(value);
 };
 
 function RealEstateCalculator() {
@@ -204,10 +208,14 @@ function RealEstateCalculator() {
 }
 
 function StockValueCalculator() {
+  const [ticker, setTicker] = useState('GOOGL');
   const [eps, setEps] = useState(150);
   const [growthRate, setGrowthRate] = useState(10);
   const [discountRate, setDiscountRate] = useState(8);
   const terminalGrowthRate = 2.5;
+  const [isPending, startTransition] = useTransition();
+  const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const intrinsicValue = useMemo(() => {
     try {
@@ -228,32 +236,87 @@ function StockValueCalculator() {
     }
   }, [eps, growthRate, discountRate]);
 
+  const handleAiAnalysis = () => {
+    setError(null);
+    setAiAnalysis(null);
+    startTransition(async () => {
+      try {
+        const result = await analyzeStock({ 
+          ticker, 
+          eps: eps.toString(), 
+          growthRate: growthRate.toString(), 
+          intrinsicValue: intrinsicValue.toFixed(2) 
+        });
+        setAiAnalysis(result.analysis);
+      } catch (e: any) {
+        setError('Failed to get AI analysis. Please try again.');
+        console.error(e);
+      }
+    });
+  };
+
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="font-headline">Stock Intrinsic Value</CardTitle>
-        <CardDescription>A simplified DCF model to estimate stock value.</CardDescription>
+        <CardDescription>A simplified DCF model to estimate stock value with AI analysis.</CardDescription>
       </CardHeader>
-      <CardContent className="grid md:grid-cols-2 gap-8">
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="eps">Current EPS (Earnings Per Share)</Label>
-            <Input id="eps" type="number" value={eps} onChange={e => setEps(Number(e.target.value))} />
-          </div>
-          <div className="space-y-2">
-            <Label>Next 5 Years Growth Rate: {growthRate}%</Label>
-            <Slider value={[growthRate]} onValueChange={v => setGrowthRate(v[0])} max={30} step={0.5} />
-          </div>
-          <div className="space-y-2">
-            <Label>Discount Rate: {discountRate}%</Label>
-            <Slider value={[discountRate]} onValueChange={v => setDiscountRate(v[0])} max={20} step={0.5} />
-          </div>
+      <CardContent className="space-y-8">
+        <div className="grid md:grid-cols-2 gap-8">
+            <div className="space-y-6">
+                <div className="space-y-2">
+                    <Label htmlFor="ticker">Stock Ticker</Label>
+                    <Input id="ticker" type="text" value={ticker} onChange={e => setTicker(e.target.value.toUpperCase())} placeholder="e.g. AAPL" />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="eps">Current EPS (Earnings Per Share)</Label>
+                    <Input id="eps" type="number" value={eps} onChange={e => setEps(Number(e.target.value))} />
+                </div>
+                <div className="space-y-2">
+                    <Label>Next 5 Years Growth Rate: {growthRate}%</Label>
+                    <Slider value={[growthRate]} onValueChange={v => setGrowthRate(v[0])} max={30} step={0.5} />
+                </div>
+                <div className="space-y-2">
+                    <Label>Discount Rate: {discountRate}%</Label>
+                    <Slider value={[discountRate]} onValueChange={v => setDiscountRate(v[0])} max={20} step={0.5} />
+                </div>
+            </div>
+            <div className="bg-muted/50 rounded-lg p-6 flex flex-col justify-center items-center text-center">
+                <h3 className="text-lg font-semibold font-headline">Estimated Intrinsic Value</h3>
+                <div className="text-5xl font-bold text-primary">{formatCurrency(intrinsicValue, 'USD')}</div>
+                <p className="text-xs text-muted-foreground mt-2">Based on a 5-year projection with a {terminalGrowthRate}% terminal growth rate.</p>
+                <Button onClick={handleAiAnalysis} disabled={isPending || !ticker} className="mt-4">
+                  {isPending ? <Loader2 className="animate-spin" /> : <BrainCircuit />}
+                  Get AI Analysis
+                </Button>
+            </div>
         </div>
-        <div className="bg-muted/50 rounded-lg p-6 flex flex-col justify-center items-center">
-            <h3 className="text-lg font-semibold font-headline">Estimated Intrinsic Value</h3>
-            <div className="text-5xl font-bold text-primary">{formatCurrency(intrinsicValue)}</div>
-            <p className="text-xs text-muted-foreground mt-2">Based on a 5-year projection with a {terminalGrowthRate}% terminal growth rate.</p>
-        </div>
+
+        {isPending && (
+          <div className="flex justify-center items-center gap-4 p-8">
+            <Loader2 className="animate-spin text-primary" size={24} />
+            <p className="text-muted-foreground">Generating AI analysis... This may take a moment.</p>
+          </div>
+        )}
+
+        {error && (
+            <Alert variant="destructive">
+                <AlertTitle>Analysis Failed</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+            </Alert>
+        )}
+
+        {aiAnalysis && (
+            <Card className="bg-blue-50/50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800">
+                <CardHeader>
+                    <CardTitle className="font-headline text-blue-800 dark:text-blue-300 flex items-center gap-2"><BrainCircuit />AI-Powered Stock Analysis</CardTitle>
+                </CardHeader>
+                <CardContent className="prose prose-sm dark:prose-invert max-w-none text-foreground/90 whitespace-pre-wrap">
+                  {aiAnalysis}
+                </CardContent>
+            </Card>
+        )}
       </CardContent>
     </Card>
   );
