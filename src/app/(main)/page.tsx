@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Smartphone, CodeXml, BrainCircuit, Github, Linkedin, Mail, ArrowRight, Star, ExternalLink } from "lucide-react";
+import { Smartphone, CodeXml, BrainCircuit, Github, Linkedin, Mail, ExternalLink, Briefcase, GraduationCap } from "lucide-react";
 
 export default function ProfilePage() {
   return (
@@ -122,6 +122,70 @@ export default function ProfilePage() {
             <div className="p-6 pt-0">
                <Button variant="outline" className="w-full">View Project <ExternalLink className="ml-2" /></Button>
             </div>
+          </Card>
+        </div>
+      </section>
+
+      {/* Work Experience Section */}
+      <section className="space-y-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold font-headline">Work Experience</h2>
+          <p className="text-muted-foreground mt-2">My professional journey.</p>
+        </div>
+        <div className="relative pl-6 after:absolute after:inset-y-0 after:w-px after:bg-border after:left-0">
+          <div className="space-y-12">
+            <div className="relative">
+              <div className="absolute top-0 -left-6 size-5 bg-primary rounded-full border-4 border-background"></div>
+              <h3 className="text-xl font-semibold font-headline">Senior Frontend Developer</h3>
+              <p className="text-sm text-muted-foreground">Innovate Corp | 2020 - Present</p>
+              <p className="mt-2 text-sm">Led the development of a new component library in React, improving code reusability by 40%. Collaborated with UX/UI designers to implement pixel-perfect designs for a major product overhaul.</p>
+            </div>
+            <div className="relative">
+              <div className="absolute top-0 -left-6 size-5 bg-primary rounded-full border-4 border-background"></div>
+              <h3 className="text-xl font-semibold font-headline">Full-Stack Developer</h3>
+              <p className="text-sm text-muted-foreground">Tech Solutions Ltd. | 2018 - 2020</p>
+              <p className="mt-2 text-sm">Developed and maintained both client-side and server-side applications for a suite of SaaS products. Optimized database queries which resulted in a 25% reduction in page load times.</p>
+            </div>
+            <div className="relative">
+              <div className="absolute top-0 -left-6 size-5 bg-primary rounded-full border-4 border-background"></div>
+              <h3 className="text-xl font-semibold font-headline">Junior Web Developer</h3>
+              <p className="text-sm text-muted-foreground">Startup Inc. | 2017 - 2018</p>
+              <p className="mt-2 text-sm">Assisted in building and launching the company's first marketing website using HTML, CSS, and JavaScript. Gained foundational experience in a fast-paced agile environment.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Education Section */}
+      <section className="space-y-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold font-headline">Education</h2>
+          <p className="text-muted-foreground mt-2">My academic background.</p>
+        </div>
+        <div className="grid md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader className="flex-row items-center gap-4">
+              <GraduationCap className="size-8 text-primary" />
+              <div>
+                <CardTitle className="font-headline">Master of Science in AI</CardTitle>
+                <CardDescription>University of Advanced Tech | 2017</CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">Specialized in machine learning and natural language processing. Thesis project involved creating a sentiment analysis model for social media data.</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex-row items-center gap-4">
+              <GraduationCap className="size-8 text-primary" />
+              <div>
+                <CardTitle className="font-headline">Bachelor of Science in Computer Science</CardTitle>
+                <CardDescription>State University | 2015</CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">Graduated with honors. Focused on software engineering principles, data structures, and algorithms. President of the coding club.</p>
+            </CardContent>
           </Card>
         </div>
       </section>
