@@ -21,24 +21,30 @@ import { ref, onValue, set, remove, push, update } from "firebase/database";
 
 // Helper to transform Firebase data into app data structure
 const transformDataToGroups = (data: any): Group[] => {
-  const fbGroups = data.groups || {};
-  const fbPrinciples = data.principles || {};
+  if (!data || !data.groups || !data.principles) {
+    return [];
+  }
+
+  const fbGroups = data.groups;
+  const fbPrinciples = data.principles;
 
   const principlesByGroup: { [key: string]: any[] } = {};
-  Object.values(fbPrinciples).forEach((p: any) => {
-    if (!p.groupId) return; // Skip principles without a groupId
-    if (!principlesByGroup[p.groupId]) {
-      principlesByGroup[p.groupId] = [];
+  Object.keys(fbPrinciples).forEach((principleId) => {
+    const p = fbPrinciples[principleId];
+    if (p.groupId) {
+      if (!principlesByGroup[p.groupId]) {
+        principlesByGroup[p.groupId] = [];
+      }
+      principlesByGroup[p.groupId].push({ ...p, id: principleId });
     }
-    principlesByGroup[p.groupId].push(p);
   });
 
   const groupsArray: Group[] = Object.keys(fbGroups).map((groupId) => {
     const group = fbGroups[groupId];
     return {
-      id: group.id,
+      id: groupId,
       name: group.name,
-      notes: (principlesByGroup[group.id] || []).map((p: any) => ({
+      notes: (principlesByGroup[groupId] || []).map((p: any) => ({
         id: p.id,
         title: p.doctrine.substring(0, 40) + (p.doctrine.length > 40 ? '...' : ''),
         content: p.doctrine,
@@ -50,8 +56,11 @@ const transformDataToGroups = (data: any): Group[] => {
   
   // Sort groups by name, handling potential numeric prefixes
   groupsArray.sort((a, b) => {
-    const aName = a.name.match(/^(\d+)\./) ? parseInt(a.name.match(/^(\d+)\./)![1]) : a.name;
-    const bName = b.name.match(/^(\d+)\./) ? parseInt(b.name.match(/^(\d+)\./)![1]) : b.name;
+    const aNumMatch = a.name.match(/^(\d+)\./);
+    const bNumMatch = b.name.match(/^(\d+)\./);
+    const aName = aNumMatch ? parseInt(aNumMatch[1]) : a.name;
+    const bName = bNumMatch ? parseInt(bNumMatch[1]) : b.name;
+    
     if (typeof aName === 'number' && typeof bName === 'number') {
       return aName - bName;
     }
@@ -115,8 +124,13 @@ export default function NotesContainer() {
 
   const handleSaveNote = (note: Note, groupId: string) => {
     const isEditing = !!note.id;
-    const noteId = isEditing ? note.id : push(ref(db, '/principles')).key;
-    if (!noteId) return;
+    const noteRef = isEditing ? ref(db, `/principles/${note.id}`) : push(ref(db, '/principles'));
+    const noteId = isEditing ? note.id : noteRef.key;
+
+    if (!noteId) {
+        toast({ title: "Error saving note", description: "Could not generate note ID.", variant: 'destructive' });
+        return;
+    }
 
     const noteData = {
       id: noteId,
@@ -124,7 +138,7 @@ export default function NotesContainer() {
       groupId: groupId,
     };
     
-    set(ref(db, `/principles/${noteId}`), noteData)
+    set(noteRef, noteData)
       .then(() => {
         toast({ title: isEditing ? "Note updated successfully." : "Note created successfully." });
         setNoteSheetOpen(false);
@@ -158,9 +172,14 @@ export default function NotesContainer() {
             })
            .catch((e) => toast({ title: "Error updating group", description: e.message, variant: 'destructive'}));
       } else { // Creating new group
-          const groupId = Date.now().toString();
+          const groupRef = push(ref(db, '/groups'));
+          const groupId = groupRef.key;
+          if (!groupId) {
+             toast({ title: "Error adding group", description: "Could not generate group ID.", variant: 'destructive'});
+             return;
+          }
           const newGroup = { id: groupId, name: groupName };
-          set(ref(db, `/groups/${groupId}`), newGroup)
+          set(groupRef, newGroup)
             .then(() => {
                 toast({ title: "Group added." });
                 setGroupDialogOpen(false);
