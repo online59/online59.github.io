@@ -1,7 +1,7 @@
 import Image from "next/image";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Smartphone, CodeXml, BrainCircuit, Github, Linkedin, Mail, GraduationCap, Briefcase, Code, Cpu, Database, BarChart, Dumbbell, BookOpen, Sparkles } from "lucide-react";
+import { Smartphone, CodeXml, BrainCircuit, Github, Linkedin, Mail, GraduationCap, Briefcase, Code, Cpu, Database, BarChart, Dumbbell, BookOpen, Sparkles, Rocket } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export default function ProfilePage() {
@@ -36,62 +36,6 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      {/* Technical Skills Section */}
-      <section className="space-y-8">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold font-headline">Technical Skills</h2>
-          <p className="text-muted-foreground mt-2">My technical toolkit.</p>
-        </div>
-        <Card>
-          <CardContent className="p-6 grid grid-cols-2 md:grid-cols-3 gap-y-8 gap-x-4">
-            <div className="space-y-2">
-              <h4 className="font-semibold flex items-center gap-2"><Smartphone className="text-primary" />Frontend</h4>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary">Flutter</Badge>
-              </div>
-            </div>
-             <div className="space-y-2">
-              <h4 className="font-semibold flex items-center gap-2"><CodeXml className="text-primary" />Web Development</h4>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary">Django</Badge>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-semibold flex items-center gap-2"><Database className="text-primary" />Database</h4>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary">SQL</Badge>
-              </div>
-            </div>
-             <div className="space-y-2">
-              <h4 className="font-semibold flex items-center gap-2"><Code className="text-primary" />Programming Languages</h4>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary">Java</Badge>
-                <Badge variant="secondary">Python</Badge>
-                <Badge variant="secondary">C</Badge>
-              </div>
-            </div>
-             <div className="space-y-2">
-              <h4 className="font-semibold flex items-center gap-2"><Cpu className="text-primary" />Machine Learning</h4>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary">Scikit-Learn</Badge>
-                <Badge variant="secondary">TensorFlow</Badge>
-                <Badge variant="secondary">Keras</Badge>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-semibold flex items-center gap-2"><BarChart className="text-primary" />Data Science</h4>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary">Numpy</Badge>
-                <Badge variant="secondary">Pandas</Badge>
-                <Badge variant="secondary">Seaborn</Badge>
-                <Badge variant="secondary">Matplotlib</Badge>
-                <Badge variant="secondary">Scipy</Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
-
       {/* Programming Experience Section */}
       <section className="space-y-8">
         <div className="text-center">
@@ -120,6 +64,59 @@ export default function ProfilePage() {
                 Developed and published "Sound Remedy," a mobile application using Flutter that streams natural sounds. The app is designed to help users relax and de-stress, based on research confirming the psychological benefits of natural audio.
               </p>
             </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Showcase Projects Section */}
+      <section className="space-y-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold font-headline">Showcase Projects</h2>
+          <p className="text-muted-foreground mt-2">A selection of my personal projects.</p>
+        </div>
+        <div className="grid md:grid-cols-2 gap-6">
+          <Card className="flex flex-col">
+            <CardHeader>
+                <div className="relative h-48 w-full mb-4">
+                  <Image src="https://placehold.co/600x400.png" alt="Project 1" layout="fill" objectFit="cover" className="rounded-t-lg" data-ai-hint="data analysis dashboard" />
+                </div>
+                <CardTitle className="font-headline flex items-center gap-2"><Rocket />AI-Powered Financial Analyst</CardTitle>
+            </CardHeader>
+            <CardContent className="flex-grow">
+              <p className="text-sm text-muted-foreground mb-4">
+                A web application that uses machine learning to analyze stock market data and provide investment insights. Built with Django, TensorFlow, and React.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary">Django</Badge>
+                <Badge variant="secondary">Python</Badge>
+                <Badge variant="secondary">TensorFlow</Badge>
+                <Badge variant="secondary">React</Badge>
+              </div>
+            </CardContent>
+            <CardFooter>
+                 <Button variant="outline" className="w-full">View on GitHub <Github className="ml-2" /></Button>
+            </CardFooter>
+          </Card>
+           <Card className="flex flex-col">
+            <CardHeader>
+                <div className="relative h-48 w-full mb-4">
+                    <Image src="https://placehold.co/600x400.png" alt="Project 2" layout="fill" objectFit="cover" className="rounded-t-lg" data-ai-hint="mobile app interface" />
+                </div>
+                <CardTitle className="font-headline flex items-center gap-2"><Smartphone />Task Management App</CardTitle>
+            </CardHeader>
+            <CardContent className="flex-grow">
+              <p className="text-sm text-muted-foreground mb-4">
+                A cross-platform mobile app for organizing tasks and boosting productivity. Developed with Flutter for a seamless experience on both iOS and Android.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary">Flutter</Badge>
+                <Badge variant="secondary">Firebase</Badge>
+                <Badge variant="secondary">Dart</Badge>
+              </div>
+            </CardContent>
+             <CardFooter>
+                 <Button variant="outline" className="w-full">View on GitHub <Github className="ml-2" /></Button>
+            </CardFooter>
           </Card>
         </div>
       </section>
@@ -199,7 +196,19 @@ export default function ProfilePage() {
           <p className="text-muted-foreground mt-2">My academic and professional foundations.</p>
         </div>
         <div className="grid md:grid-cols-2 gap-6">
-          <Card>
+           <Card>
+            <CardHeader className="flex-row items-center gap-4">
+              <GraduationCap className="size-8 text-primary" />
+              <div>
+                <CardTitle className="font-headline">Master of Science in Computer Science</CardTitle>
+                <CardDescription>Kasetsart University, Bangkok | 2022 - Present</CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">Currently pursuing a Master's degree with a focus on advanced computer science topics, building on my passion for technology. GPA: 3.86</p>
+            </CardContent>
+          </Card>
+           <Card>
             <CardHeader className="flex-row items-center gap-4">
               <CodeXml className="size-8 text-primary" />
               <div>
@@ -252,6 +261,62 @@ export default function ProfilePage() {
             </CardHeader>
           </Card>
         </div>
+      </section>
+
+      {/* Technical Skills Section */}
+      <section className="space-y-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold font-headline">Technical Skills</h2>
+          <p className="text-muted-foreground mt-2">My technical toolkit.</p>
+        </div>
+        <Card>
+          <CardContent className="p-6 grid grid-cols-2 md:grid-cols-3 gap-y-8 gap-x-4">
+            <div className="space-y-2">
+              <h4 className="font-semibold flex items-center gap-2"><Smartphone className="text-primary" />Frontend</h4>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary">Flutter</Badge>
+              </div>
+            </div>
+             <div className="space-y-2">
+              <h4 className="font-semibold flex items-center gap-2"><CodeXml className="text-primary" />Web Development</h4>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary">Django</Badge>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h4 className="font-semibold flex items-center gap-2"><Database className="text-primary" />Database</h4>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary">SQL</Badge>
+              </div>
+            </div>
+             <div className="space-y-2">
+              <h4 className="font-semibold flex items-center gap-2"><Code className="text-primary" />Programming Languages</h4>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary">Java</Badge>
+                <Badge variant="secondary">Python</Badge>
+                <Badge variant="secondary">C</Badge>
+              </div>
+            </div>
+             <div className="space-y-2">
+              <h4 className="font-semibold flex items-center gap-2"><Cpu className="text-primary" />Machine Learning</h4>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary">Scikit-Learn</Badge>
+                <Badge variant="secondary">TensorFlow</Badge>
+                <Badge variant="secondary">Keras</Badge>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h4 className="font-semibold flex items-center gap-2"><BarChart className="text-primary" />Data Science</h4>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary">Numpy</Badge>
+                <Badge variant="secondary">Pandas</Badge>
+                <Badge variant="secondary">Seaborn</Badge>
+                <Badge variant="secondary">Matplotlib</Badge>
+                <Badge variant="secondary">Scipy</Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </section>
 
        {/* Get in Touch Section */}
