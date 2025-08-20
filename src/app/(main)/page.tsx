@@ -1,7 +1,8 @@
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Smartphone, CodeXml, BrainCircuit, Github, Linkedin, Mail, ExternalLink, GraduationCap, Plane } from "lucide-react";
+import { Smartphone, CodeXml, BrainCircuit, Github, Linkedin, Mail, GraduationCap, Dumbbell, BookOpen, Sparkles } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export default function ProfilePage() {
   return (
@@ -35,7 +36,7 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      {/* Skills Section */}
+      {/* What I do Section */}
       <section className="space-y-8">
         <div className="text-center">
           <h2 className="text-3xl font-bold font-headline">What I Do</h2>
@@ -49,7 +50,7 @@ export default function ProfilePage() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Crafting seamless experiences on iOS and Android, delivering high-performance, responsive, and user-friendly mobile applications.
+                Crafting seamless experiences on iOS and Android, using Swift, SwiftUI, Objective-C, Kotlin, and Java to deliver high-performance, user-friendly mobile applications.
               </p>
             </CardContent>
           </Card>
@@ -60,7 +61,7 @@ export default function ProfilePage() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Skilled in modern frontend and backend tech to create dynamic websites with a focus on clean code, performance, and security.
+                Skilled in Javascript, Typescript, React, Next.js and Node.js to create dynamic websites with a focus on clean code, performance, and security.
               </p>
             </CardContent>
           </Card>
@@ -71,95 +72,71 @@ export default function ProfilePage() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Leveraging AI to build smart features, automate processes, and extract valuable insights, creating more powerful systems.
+                Leveraging Genkit, Gemini API and OpenAI API to build smart features, automate processes, and create more powerful, intelligent systems.
               </p>
             </CardContent>
           </Card>
         </div>
       </section>
 
-      {/* Featured Projects Section */}
-      <section className="space-y-8">
-         <div className="text-center">
-          <h2 className="text-3xl font-bold font-headline">Featured Projects</h2>
-          <p className="text-muted-foreground mt-2">A selection of my best work.</p>
-        </div>
-        <div className="grid md:grid-cols-2 gap-6">
-          <Card className="flex flex-col group">
-            <div className="relative h-56 w-full overflow-hidden rounded-t-lg">
-              <Image src="https://placehold.co/600x400.png" alt="Project 1" layout="fill" objectFit="cover" data-ai-hint="abstract tech" />
-            </div>
-            <CardHeader>
-              <CardTitle>Project Alpha</CardTitle>
-              <CardDescription>A sophisticated data visualization tool for enterprise clients.</CardDescription>
-            </CardHeader>
-            <CardContent className="flex-grow">
-              <div className="flex flex-wrap gap-2 text-xs">
-                <span className="bg-secondary text-secondary-foreground py-1 px-2 rounded-full">React</span>
-                <span className="bg-secondary text-secondary-foreground py-1 px-2 rounded-full">Node.js</span>
-                <span className="bg-secondary text-secondary-foreground py-1 px-2 rounded-full">D3.js</span>
-              </div>
-            </CardContent>
-            <div className="p-6 pt-0">
-               <Button variant="outline" className="w-full">View Project <ExternalLink className="ml-2" /></Button>
-            </div>
-          </Card>
-           <Card className="flex flex-col group">
-            <div className="relative h-56 w-full overflow-hidden rounded-t-lg">
-              <Image src="https://placehold.co/600x400.png" alt="Project 2" layout="fill" objectFit="cover" data-ai-hint="mobile app" />
-            </div>
-            <CardHeader>
-              <CardTitle>Mobile Companion App</CardTitle>
-              <CardDescription>A cross-platform app to manage IoT devices on the go.</CardDescription>
-            </CardHeader>
-            <CardContent className="flex-grow">
-               <div className="flex flex-wrap gap-2 text-xs">
-                <span className="bg-secondary text-secondary-foreground py-1 px-2 rounded-full">Flutter</span>
-                <span className="bg-secondary text-secondary-foreground py-1 px-2 rounded-full">Firebase</span>
-                <span className="bg-secondary text-secondary-foreground py-1 px-2 rounded-full">Genkit</span>
-              </div>
-            </CardContent>
-            <div className="p-6 pt-0">
-               <Button variant="outline" className="w-full">View Project <ExternalLink className="ml-2" /></Button>
-            </div>
-          </Card>
-        </div>
-      </section>
-
-      {/* Work Experience Section */}
+       {/* Technical Skills Section */}
       <section className="space-y-8">
         <div className="text-center">
-          <h2 className="text-3xl font-bold font-headline">Work Experience</h2>
-          <p className="text-muted-foreground mt-2">My professional journey in and out of the cockpit.</p>
+          <h2 className="text-3xl font-bold font-headline">Technical Skills</h2>
+          <p className="text-muted-foreground mt-2">My technical toolkit.</p>
         </div>
-        <div className="relative pl-6 after:absolute after:inset-y-0 after:w-px after:bg-border after:left-0">
-          <div className="space-y-12">
-            <div className="relative">
-              <div className="absolute top-0 -left-6 size-5 bg-primary rounded-full border-4 border-background flex items-center justify-center">
-                <CodeXml className="size-3 text-primary-foreground" />
+        <Card>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+              <div>
+                <h4 className="font-semibold mb-2">Mobile</h4>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary">Swift</Badge>
+                  <Badge variant="secondary">SwiftUI</Badge>
+                  <Badge variant="secondary">Objective-C</Badge>
+                  <Badge variant="secondary">Kotlin</Badge>
+                  <Badge variant="secondary">Java</Badge>
+                </div>
               </div>
-              <h3 className="text-xl font-semibold font-headline">Full-Stack Developer</h3>
-              <p className="text-sm text-muted-foreground">Innovate Corp | 2022 - Present</p>
-              <p className="mt-2 text-sm">Pioneering the future of web applications by bridging my experience in aviation with cutting-edge technology. Building robust and scalable solutions with a focus on user experience and performance.</p>
-            </div>
-            <div className="relative">
-              <div className="absolute top-0 -left-6 size-5 bg-primary rounded-full border-4 border-background flex items-center justify-center">
-                <Plane className="size-3 text-primary-foreground" />
+              <div>
+                <h4 className="font-semibold mb-2">Web</h4>
+                 <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary">Javascript</Badge>
+                  <Badge variant="secondary">Typescript</Badge>
+                  <Badge variant="secondary">React</Badge>
+                  <Badge variant="secondary">Next.js</Badge>
+                  <Badge variant="secondary">Node.js</Badge>
+                  <Badge variant="secondary">HTML</Badge>
+                  <Badge variant="secondary">CSS</Badge>
+                </div>
               </div>
-              <h3 className="text-xl font-semibold font-headline">Aviation Professional</h3>
-              <p className="text-sm text-muted-foreground">Newgen Airways, Bangkok Airways | 2018 - 2022</p>
-              <p className="mt-2 text-sm">Gained extensive experience in airline operations, safety protocols, and team coordination. Honed critical problem-solving skills in high-pressure environments, ensuring operational excellence.</p>
-            </div>
-            <div className="relative">
-             <div className="absolute top-0 -left-6 size-5 bg-primary rounded-full border-4 border-background flex items-center justify-center">
-                <Plane className="size-3 text-primary-foreground" />
+               <div>
+                <h4 className="font-semibold mb-2">AI</h4>
+                 <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary">Genkit</Badge>
+                  <Badge variant="secondary">Gemini API</Badge>
+                  <Badge variant="secondary">OpenAI API</Badge>
+                </div>
               </div>
-              <h3 className="text-xl font-semibold font-headline">Airport Operations Specialist</h3>
-              <p className="text-sm text-muted-foreground">U-Tapao International Aviation | 2016 - 2018</p>
-              <p className="mt-2 text-sm">Managed ground handling and airport services, contributing to the safe and efficient flow of aircraft and passengers. Developed a keen eye for detail and process optimization.</p>
+               <div>
+                <h4 className="font-semibold mb-2">Database</h4>
+                 <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary">Firebase</Badge>
+                  <Badge variant="secondary">SwiftData</Badge>
+                  <Badge variant="secondary">CoreData</Badge>
+                </div>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-2">Other</h4>
+                 <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary">Git</Badge>
+                  <Badge variant="secondary">GitHub</Badge>
+                  <Badge variant="secondary">GitLab</Badge>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </section>
 
       {/* Education Section */}
@@ -185,13 +162,41 @@ export default function ProfilePage() {
             <CardHeader className="flex-row items-center gap-4">
               <GraduationCap className="size-8 text-primary" />
               <div>
-                <CardTitle className="font-headline">Aviation Management</CardTitle>
-                <CardDescription>Civil Aviation Training Center</CardDescription>
+                <CardTitle className="font-headline">Bachelor of Business Administration</CardTitle>
+                <CardDescription>Civil Aviation Training Center, Bangkok</CardDescription>
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">Graduated with a comprehensive understanding of airline and airport management, aviation law, and safety regulations. </p>
+              <p className="text-sm text-muted-foreground">Major in Aviation Management. Graduated with a comprehensive understanding of airline and airport management, aviation law, and safety regulations.</p>
             </CardContent>
+          </Card>
+        </div>
+      </section>
+      
+      {/* Hobbies Section */}
+      <section className="space-y-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold font-headline">Hobbies</h2>
+          <p className="text-muted-foreground mt-2">My personal interests and passions.</p>
+        </div>
+        <div className="grid gap-6 md:grid-cols-3">
+          <Card>
+            <CardHeader className="flex-row items-center gap-4">
+              <Dumbbell className="size-8 text-primary" />
+              <CardTitle className="font-headline">Weight Training</CardTitle>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader className="flex-row items-center gap-4">
+              <BookOpen className="size-8 text-primary" />
+              <CardTitle className="font-headline">Reading</CardTitle>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader className="flex-row items-center gap-4">
+              <Sparkles className="size-8 text-primary" />
+              <CardTitle className="font-headline">Meditation</CardTitle>
+            </CardHeader>
           </Card>
         </div>
       </section>
@@ -212,5 +217,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-    
