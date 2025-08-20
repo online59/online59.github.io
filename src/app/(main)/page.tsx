@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Smartphone, CodeXml, BrainCircuit, Github, Linkedin, Mail, GraduationCap, Dumbbell, BookOpen, Sparkles } from "lucide-react";
+import { Smartphone, CodeXml, BrainCircuit, Github, Linkedin, Mail, GraduationCap, Briefcase, Code, Cpu, Database, BarChart, Dumbbell, BookOpen, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export default function ProfilePage() {
@@ -36,107 +36,160 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      {/* What I do Section */}
-      <section className="space-y-8">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold font-headline">What I Do</h2>
-          <p className="text-muted-foreground mt-2">I build and optimize digital experiences.</p>
-        </div>
-        <div className="grid gap-6 md:grid-cols-3">
-          <Card className="hover:border-primary/50 hover:shadow-lg transition-all transform hover:-translate-y-1">
-            <CardHeader>
-              <Smartphone className="size-8 text-primary mb-2" />
-              <CardTitle className="font-headline">Mobile Development</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Crafting seamless experiences on iOS and Android, using Swift, SwiftUI, Objective-C, Kotlin, and Java to deliver high-performance, user-friendly mobile applications.
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="hover:border-primary/50 hover:shadow-lg transition-all transform hover:-translate-y-1">
-            <CardHeader>
-              <CodeXml className="size-8 text-primary mb-2" />
-              <CardTitle className="font-headline">Website Development</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Skilled in Javascript, Typescript, React, Next.js and Node.js to create dynamic websites with a focus on clean code, performance, and security.
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="hover:border-primary/50 hover:shadow-lg transition-all transform hover:-translate-y-1">
-            <CardHeader>
-              <BrainCircuit className="size-8 text-primary mb-2" />
-              <CardTitle className="font-headline">Artificial Intelligence</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Leveraging Genkit, Gemini API and OpenAI API to build smart features, automate processes, and create more powerful, intelligent systems.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-       {/* Technical Skills Section */}
+      {/* Technical Skills Section */}
       <section className="space-y-8">
         <div className="text-center">
           <h2 className="text-3xl font-bold font-headline">Technical Skills</h2>
           <p className="text-muted-foreground mt-2">My technical toolkit.</p>
         </div>
         <Card>
-          <CardContent className="p-6">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-              <div>
-                <h4 className="font-semibold mb-2">Mobile</h4>
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary">Swift</Badge>
-                  <Badge variant="secondary">SwiftUI</Badge>
-                  <Badge variant="secondary">Objective-C</Badge>
-                  <Badge variant="secondary">Kotlin</Badge>
-                  <Badge variant="secondary">Java</Badge>
-                </div>
+          <CardContent className="p-6 grid grid-cols-2 md:grid-cols-3 gap-y-8 gap-x-4">
+            <div className="space-y-2">
+              <h4 className="font-semibold flex items-center gap-2"><Smartphone className="text-primary" />Frontend</h4>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary">Flutter</Badge>
               </div>
-              <div>
-                <h4 className="font-semibold mb-2">Web</h4>
-                 <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary">Javascript</Badge>
-                  <Badge variant="secondary">Typescript</Badge>
-                  <Badge variant="secondary">React</Badge>
-                  <Badge variant="secondary">Next.js</Badge>
-                  <Badge variant="secondary">Node.js</Badge>
-                  <Badge variant="secondary">HTML</Badge>
-                  <Badge variant="secondary">CSS</Badge>
-                </div>
+            </div>
+             <div className="space-y-2">
+              <h4 className="font-semibold flex items-center gap-2"><CodeXml className="text-primary" />Web Development</h4>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary">Django</Badge>
               </div>
-               <div>
-                <h4 className="font-semibold mb-2">AI</h4>
-                 <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary">Genkit</Badge>
-                  <Badge variant="secondary">Gemini API</Badge>
-                  <Badge variant="secondary">OpenAI API</Badge>
-                </div>
+            </div>
+            <div className="space-y-2">
+              <h4 className="font-semibold flex items-center gap-2"><Database className="text-primary" />Database</h4>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary">SQL</Badge>
               </div>
-               <div>
-                <h4 className="font-semibold mb-2">Database</h4>
-                 <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary">Firebase</Badge>
-                  <Badge variant="secondary">SwiftData</Badge>
-                  <Badge variant="secondary">CoreData</Badge>
-                </div>
+            </div>
+             <div className="space-y-2">
+              <h4 className="font-semibold flex items-center gap-2"><Code className="text-primary" />Programming Languages</h4>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary">Java</Badge>
+                <Badge variant="secondary">Python</Badge>
+                <Badge variant="secondary">C</Badge>
               </div>
-              <div>
-                <h4 className="font-semibold mb-2">Other</h4>
-                 <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary">Git</Badge>
-                  <Badge variant="secondary">GitHub</Badge>
-                  <Badge variant="secondary">GitLab</Badge>
-                </div>
+            </div>
+             <div className="space-y-2">
+              <h4 className="font-semibold flex items-center gap-2"><Cpu className="text-primary" />Machine Learning</h4>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary">Scikit-Learn</Badge>
+                <Badge variant="secondary">TensorFlow</Badge>
+                <Badge variant="secondary">Keras</Badge>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h4 className="font-semibold flex items-center gap-2"><BarChart className="text-primary" />Data Science</h4>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary">Numpy</Badge>
+                <Badge variant="secondary">Pandas</Badge>
+                <Badge variant="secondary">Seaborn</Badge>
+                <Badge variant="secondary">Matplotlib</Badge>
+                <Badge variant="secondary">Scipy</Badge>
               </div>
             </div>
           </CardContent>
         </Card>
+      </section>
+
+      {/* Programming Experience Section */}
+      <section className="space-y-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold font-headline">Programming Experience</h2>
+          <p className="text-muted-foreground mt-2">Highlights of my project work.</p>
+        </div>
+        <div className="grid md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <BrainCircuit className="size-8 text-primary mb-2" />
+              <CardTitle className="font-headline">ML for Rice Yield Prediction</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Researched and developed a deep learning model (MLP, LSTM, CNN) to predict in-season rice yield, achieving a high accuracy (R² of 0.95). The project aims to assist in formulating objective agricultural policies by processing big data with tools like Pandas, Numpy, and Scipy.
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <Smartphone className="size-8 text-primary mb-2" />
+              <CardTitle className="font-headline">Sound Remedy - Flutter App</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Developed and published "Sound Remedy," a mobile application using Flutter that streams natural sounds. The app is designed to help users relax and de-stress, based on research confirming the psychological benefits of natural audio.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+       {/* Working Experience Section */}
+      <section className="space-y-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold font-headline">Work Experience</h2>
+          <p className="text-muted-foreground mt-2">My professional journey in aviation.</p>
+        </div>
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="font-headline flex items-center gap-2"><Briefcase className="size-6 text-primary"/>Airport Operations Planning Manager</CardTitle>
+                  <CardDescription>U-Tapao International Aviation</CardDescription>
+                </div>
+                <div className="text-sm text-muted-foreground">July 2021 – Ongoing</div>
+              </div>
+            </CardHeader>
+            <CardContent>
+               <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-2">
+                 <li>Assessed airport operations and facilities to develop improvement strategies within budget and legal constraints.</li>
+                 <li>Coordinated with government units and agencies to facilitate communication and achieve common goals.</li>
+                 <li>Conducted site surveys and data collection for new airport development.</li>
+                 <li>Developed new business models to increase annual revenue.</li>
+               </ul>
+            </CardContent>
+          </Card>
+           <Card>
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="font-headline flex items-center gap-2"><Briefcase className="size-6 text-primary"/>Aviation Security Technical Officer</CardTitle>
+                  <CardDescription>Bangkok Airways</CardDescription>
+                </div>
+                <div className="text-sm text-muted-foreground">April 2018 - June 2021</div>
+              </div>
+            </CardHeader>
+            <CardContent>
+               <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-2">
+                  <li>Monitored changes in national aviation security legislation to update security manuals and procedures.</li>
+                  <li>Fostered security information communication and managed incident reporting and investigation.</li>
+                  <li>Coordinated with other departments and agencies on security-related matters.</li>
+                  <li>Reviewed risk levels and prepared comprehensive risk reports.</li>
+                  <li>Conducted aviation security awareness lectures for employees.</li>
+               </ul>
+            </CardContent>
+          </Card>
+           <Card>
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="font-headline flex items-center gap-2"><Briefcase className="size-6 text-primary"/>Safety Officer</CardTitle>
+                  <CardDescription>Newgen Airways</CardDescription>
+                </div>
+                <div className="text-sm text-muted-foreground">October 2016 - January 2018</div>
+              </div>
+            </CardHeader>
+            <CardContent>
+               <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-2">
+                <li>Identified and eliminated safety hazards to prevent accidents and incidents.</li>
+                <li>Investigated aircraft accidents/incidents and formulated recommendations.</li>
+                <li>Promoted safety publications and awareness throughout the organization.</li>
+                <li>Performed station safety audits under the guidance of a lead auditor.</li>
+               </ul>
+            </CardContent>
+          </Card>
+        </div>
       </section>
 
       {/* Education Section */}
@@ -162,12 +215,12 @@ export default function ProfilePage() {
             <CardHeader className="flex-row items-center gap-4">
               <GraduationCap className="size-8 text-primary" />
               <div>
-                <CardTitle className="font-headline">Bachelor of Business Administration</CardTitle>
-                <CardDescription>Civil Aviation Training Center, Bangkok</CardDescription>
+                <CardTitle className="font-headline">Bachelor of Science in Aviation Management</CardTitle>
+                <CardDescription>Civil Aviation Training Center, Bangkok | 2012 - 2015</CardDescription>
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">Major in Aviation Management. Graduated with a comprehensive understanding of airline and airport management, aviation law, and safety regulations.</p>
+              <p className="text-sm text-muted-foreground">Specialized in Airport Management, graduating with a comprehensive understanding of airline and airport operations, aviation law, and safety regulations.</p>
             </CardContent>
           </Card>
         </div>
