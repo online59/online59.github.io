@@ -26,7 +26,7 @@ export default function ProfilePage() {
         </div>
         <div className="relative h-80 w-full rounded-lg bg-muted flex items-center justify-center overflow-hidden">
            <Image 
-            src="https://placehold.co/600x400.png" 
+            src="https://picsum.photos/seed/1/600/400" 
             alt="Developer portrait"
             fill
             style={{ objectFit: "cover" }}
@@ -78,7 +78,7 @@ export default function ProfilePage() {
           <Card className="flex flex-col">
             <CardHeader>
                 <div className="relative h-48 w-full mb-4">
-                  <Image src="https://placehold.co/600x400.png" alt="Project 1" fill style={{objectFit: 'cover'}} className="rounded-t-lg" data-ai-hint="data analysis dashboard" />
+                  <Image src="https://picsum.photos/seed/2/600/400" alt="Project 1" fill style={{objectFit: 'cover'}} className="rounded-t-lg" data-ai-hint="data analysis dashboard" />
                 </div>
                 <CardTitle className="font-headline flex items-center gap-2"><Rocket />AI-Powered Financial Analyst</CardTitle>
             </CardHeader>
@@ -100,7 +100,7 @@ export default function ProfilePage() {
            <Card className="flex flex-col">
             <CardHeader>
                 <div className="relative h-48 w-full mb-4">
-                    <Image src="https://placehold.co/600x400.png" alt="Project 2" fill style={{objectFit: 'cover'}} className="rounded-t-lg" data-ai-hint="mobile app interface" />
+                    <Image src="https://picsum.photos/seed/3/600/400" alt="Project 2" fill style={{objectFit: 'cover'}} className="rounded-t-lg" data-ai-hint="mobile app interface" />
                 </div>
                 <CardTitle className="font-headline flex items-center gap-2"><Smartphone />Task Management App</CardTitle>
             </CardHeader>
