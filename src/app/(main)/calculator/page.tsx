@@ -10,8 +10,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { BrainCircuit, Loader2 } from 'lucide-react';
-import { analyzeStock } from '@/ai/flows/analyze-stock-flow';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { getStockAnalysis } from '@/lib/actions';
+import type { AnalyzeStockOutput } from '@/ai/flows/analyze-stock-flow-types';
 
 const formatCurrency = (value: number, currency = 'THB') => {
   return new Intl.NumberFormat('th-TH', { style: 'currency', currency: currency }).format(value);
@@ -213,8 +214,9 @@ function StockValueCalculator() {
   const [growthRate, setGrowthRate] = useState(10);
   const [discountRate, setDiscountRate] = useState(8);
   const terminalGrowthRate = 2.5;
+
   const [isPending, startTransition] = useTransition();
-  const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<AnalyzeStockOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const intrinsicValue = useMemo(() => {
@@ -236,31 +238,29 @@ function StockValueCalculator() {
     }
   }, [eps, growthRate, discountRate]);
 
-  const handleAiAnalysis = () => {
+  const handleRunAnalysis = () => {
     setError(null);
-    setAiAnalysis(null);
+    setAnalysisResult(null);
     startTransition(async () => {
       try {
-        const result = await analyzeStock({ 
-          ticker, 
-          eps: eps.toString(), 
-          growthRate: growthRate.toString(), 
-          intrinsicValue: intrinsicValue.toFixed(2) 
+        const result = await getStockAnalysis({
+          ticker,
+          eps: String(eps),
+          growthRate: String(growthRate),
+          intrinsicValue: intrinsicValue.toFixed(2),
         });
-        setAiAnalysis(result.analysis);
+        setAnalysisResult(result);
       } catch (e: any) {
-        setError('Failed to get AI analysis. Please try again.');
-        console.error(e);
+        setError(e.message || "An unexpected error occurred.");
       }
     });
   };
-
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="font-headline">Stock Intrinsic Value</CardTitle>
-        <CardDescription>A simplified DCF model to estimate stock value with AI analysis.</CardDescription>
+        <CardDescription>A simplified DCF model to estimate stock value.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-8">
         <div className="grid md:grid-cols-2 gap-8">
@@ -286,37 +286,53 @@ function StockValueCalculator() {
                 <h3 className="text-lg font-semibold font-headline">Estimated Intrinsic Value</h3>
                 <div className="text-5xl font-bold text-primary">{formatCurrency(intrinsicValue, 'USD')}</div>
                 <p className="text-xs text-muted-foreground mt-2">Based on a 5-year projection with a {terminalGrowthRate}% terminal growth rate.</p>
-                <Button onClick={handleAiAnalysis} disabled={isPending || !ticker} className="mt-4">
-                  {isPending ? <Loader2 className="animate-spin" /> : <BrainCircuit />}
-                  Get AI Analysis
-                </Button>
             </div>
         </div>
 
-        {isPending && (
-          <div className="flex justify-center items-center gap-4 p-8">
-            <Loader2 className="animate-spin text-primary" size={24} />
-            <p className="text-muted-foreground">Generating AI analysis... This may take a moment.</p>
-          </div>
-        )}
+        <div>
+            <Button onClick={handleRunAnalysis} disabled={isPending}>
+                {isPending ? <><Loader2 className="animate-spin mr-2" />Analyzing...</> : <><BrainCircuit className="mr-2" />Get AI Analysis</>}
+            </Button>
 
-        {error && (
-            <Alert variant="destructive">
-                <AlertTitle>Analysis Failed</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-            </Alert>
-        )}
+            {isPending && (
+              <Alert className="mt-4">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <AlertTitle>Heads up!</AlertTitle>
+                  <AlertDescription>
+                    The AI is analyzing the stock. This may take a moment.
+                  </AlertDescription>
+              </Alert>
+            )}
 
-        {aiAnalysis && (
-            <Card className="bg-blue-50/50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800">
+            {error && (
+              <Alert variant="destructive" className="mt-4">
+                  <AlertTitle>Analysis Failed</AlertTitle>
+                  <AlertDescription>
+                    {error}
+                  </AlertDescription>
+              </Alert>
+            )}
+            
+            {analysisResult && (
+              <Card className="mt-4">
                 <CardHeader>
-                    <CardTitle className="font-headline text-blue-800 dark:text-blue-300 flex items-center gap-2"><BrainCircuit />AI-Powered Stock Analysis</CardTitle>
+                  <CardTitle className="font-headline">AI Financial Analysis</CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-sm dark:prose-invert max-w-none text-foreground/90 whitespace-pre-wrap">
-                  {aiAnalysis}
+                <CardContent className="text-sm prose prose-sm max-w-none">
+                  {analysisResult.analysis.split('\n').map((line, index) => {
+                    const trimmedLine = line.trim();
+                    if (trimmedLine.startsWith('1.') || trimmedLine.startsWith('2.') || trimmedLine.startsWith('3.') || trimmedLine.startsWith('4.')) {
+                        return <p key={index} className="font-semibold mt-2">{trimmedLine}</p>;
+                    }
+                    if (trimmedLine.startsWith('**') && trimmedLine.endsWith('**')) {
+                        return <strong key={index}>{trimmedLine.slice(2,-2)}</strong>
+                    }
+                     return <p key={index}>{trimmedLine}</p>;
+                  })}
                 </CardContent>
-            </Card>
-        )}
+              </Card>
+            )}
+        </div>
       </CardContent>
     </Card>
   );
