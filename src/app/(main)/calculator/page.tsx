@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useTransition } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
@@ -8,11 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
-import { BrainCircuit, Loader2 } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { getStockAnalysis } from '@/lib/actions';
-import type { AnalyzeStockOutput } from '@/ai/flows/analyze-stock-flow-types';
 
 const formatCurrency = (value: number, currency = 'THB') => {
   return new Intl.NumberFormat('th-TH', { style: 'currency', currency: currency }).format(value);
@@ -215,10 +210,6 @@ function StockValueCalculator() {
   const [discountRate, setDiscountRate] = useState(8);
   const terminalGrowthRate = 2.5;
 
-  const [isPending, startTransition] = useTransition();
-  const [analysisResult, setAnalysisResult] = useState<AnalyzeStockOutput | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
   const intrinsicValue = useMemo(() => {
     try {
       let projectedEps = eps;
@@ -237,24 +228,6 @@ function StockValueCalculator() {
       return 0;
     }
   }, [eps, growthRate, discountRate]);
-
-  const handleRunAnalysis = () => {
-    setError(null);
-    setAnalysisResult(null);
-    startTransition(async () => {
-      try {
-        const result = await getStockAnalysis({
-          ticker,
-          eps: String(eps),
-          growthRate: String(growthRate),
-          intrinsicValue: intrinsicValue.toFixed(2),
-        });
-        setAnalysisResult(result);
-      } catch (e: any) {
-        setError(e.message || "An unexpected error occurred.");
-      }
-    });
-  };
 
   return (
     <Card>
@@ -287,51 +260,6 @@ function StockValueCalculator() {
                 <div className="text-5xl font-bold text-primary">{formatCurrency(intrinsicValue, 'USD')}</div>
                 <p className="text-xs text-muted-foreground mt-2">Based on a 5-year projection with a {terminalGrowthRate}% terminal growth rate.</p>
             </div>
-        </div>
-
-        <div>
-            <Button onClick={handleRunAnalysis} disabled={isPending}>
-                {isPending ? <><Loader2 className="animate-spin mr-2" />Analyzing...</> : <><BrainCircuit className="mr-2" />Get AI Analysis</>}
-            </Button>
-
-            {isPending && (
-              <Alert className="mt-4">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <AlertTitle>Heads up!</AlertTitle>
-                  <AlertDescription>
-                    The AI is analyzing the stock. This may take a moment.
-                  </AlertDescription>
-              </Alert>
-            )}
-
-            {error && (
-              <Alert variant="destructive" className="mt-4">
-                  <AlertTitle>Analysis Failed</AlertTitle>
-                  <AlertDescription>
-                    {error}
-                  </AlertDescription>
-              </Alert>
-            )}
-            
-            {analysisResult && (
-              <Card className="mt-4">
-                <CardHeader>
-                  <CardTitle className="font-headline">AI Financial Analysis</CardTitle>
-                </CardHeader>
-                <CardContent className="text-sm prose prose-sm max-w-none">
-                  {analysisResult.analysis.split('\n').map((line, index) => {
-                    const trimmedLine = line.trim();
-                    if (trimmedLine.startsWith('1.') || trimmedLine.startsWith('2.') || trimmedLine.startsWith('3.') || trimmedLine.startsWith('4.')) {
-                        return <p key={index} className="font-semibold mt-2">{trimmedLine}</p>;
-                    }
-                    if (trimmedLine.startsWith('**') && trimmedLine.endsWith('**')) {
-                        return <strong key={index}>{trimmedLine.slice(2,-2)}</strong>
-                    }
-                     return <p key={index}>{trimmedLine}</p>;
-                  })}
-                </CardContent>
-              </Card>
-            )}
         </div>
       </CardContent>
     </Card>
