@@ -28,8 +28,8 @@ export default function ProfilePage() {
            <Image 
             src="https://placehold.co/600x400.png" 
             alt="Developer portrait"
-            layout="fill"
-            objectFit="cover"
+            fill
+            style={{ objectFit: "cover" }}
             data-ai-hint="developer portrait"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background/50 to-transparent"></div>
@@ -78,7 +78,7 @@ export default function ProfilePage() {
           <Card className="flex flex-col">
             <CardHeader>
                 <div className="relative h-48 w-full mb-4">
-                  <Image src="https://placehold.co/600x400.png" alt="Project 1" layout="fill" objectFit="cover" className="rounded-t-lg" data-ai-hint="data analysis dashboard" />
+                  <Image src="https://placehold.co/600x400.png" alt="Project 1" fill style={{objectFit: 'cover'}} className="rounded-t-lg" data-ai-hint="data analysis dashboard" />
                 </div>
                 <CardTitle className="font-headline flex items-center gap-2"><Rocket />AI-Powered Financial Analyst</CardTitle>
             </CardHeader>
@@ -100,7 +100,7 @@ export default function ProfilePage() {
            <Card className="flex flex-col">
             <CardHeader>
                 <div className="relative h-48 w-full mb-4">
-                    <Image src="https://placehold.co/600x400.png" alt="Project 2" layout="fill" objectFit="cover" className="rounded-t-lg" data-ai-hint="mobile app interface" />
+                    <Image src="https://placehold.co/600x400.png" alt="Project 2" fill style={{objectFit: 'cover'}} className="rounded-t-lg" data-ai-hint="mobile app interface" />
                 </div>
                 <CardTitle className="font-headline flex items-center gap-2"><Smartphone />Task Management App</CardTitle>
             </CardHeader>
