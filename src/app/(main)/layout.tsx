@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calculator, Home, Notebook, PanelLeft } from "lucide-react";
+import { Calculator, Home, Notebook } from "lucide-react";
 import {
   SidebarProvider,
   Sidebar,

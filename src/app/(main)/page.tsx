@@ -15,7 +15,7 @@ export default function ProfilePage() {
           <p className="text-xl text-muted-foreground">
             From the aviation industry to full-stack development. I build beautiful, functional, and intelligent applications with a unique perspective.
           </p>
-          <div className="flex gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row gap-4 pt-4">
             <Button>Get In Touch <Mail className="ml-2" /></Button>
             <Button variant="outline">View Projects</Button>
           </div>
@@ -135,7 +135,7 @@ export default function ProfilePage() {
                   <CardTitle className="font-headline flex items-center gap-2"><Briefcase className="size-6 text-primary"/>Airport Operations Planning Manager</CardTitle>
                   <CardDescription>U-Tapao International Aviation</CardDescription>
                 </div>
-                <div className="text-sm text-muted-foreground">July 2021 – Ongoing</div>
+                <div className="text-sm text-muted-foreground text-right">July 2021 – Ongoing</div>
               </div>
             </CardHeader>
             <CardContent>
@@ -154,7 +154,7 @@ export default function ProfilePage() {
                   <CardTitle className="font-headline flex items-center gap-2"><Briefcase className="size-6 text-primary"/>Aviation Security Technical Officer</CardTitle>
                   <CardDescription>Bangkok Airways</CardDescription>
                 </div>
-                <div className="text-sm text-muted-foreground">April 2018 - June 2021</div>
+                <div className="text-sm text-muted-foreground text-right">April 2018 - June 2021</div>
               </div>
             </CardHeader>
             <CardContent>
@@ -174,7 +174,7 @@ export default function ProfilePage() {
                   <CardTitle className="font-headline flex items-center gap-2"><Briefcase className="size-6 text-primary"/>Safety Officer</CardTitle>
                   <CardDescription>Newgen Airways</CardDescription>
                 </div>
-                <div className="text-sm text-muted-foreground">October 2016 - January 2018</div>
+                <div className="text-sm text-muted-foreground text-right">October 2016 - January 2018</div>
               </div>
             </CardHeader>
             <CardContent>
