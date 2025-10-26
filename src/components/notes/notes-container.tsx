@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -459,8 +460,8 @@ export function NotesContainer() {
         {groups.map(group => (
           <Card key={group.id} className="overflow-hidden">
             <AccordionItem value={group.id} className="border-b-0">
-               <div className="flex items-center group/trigger bg-muted/30">
-                <AccordionTrigger className="p-4 hover:no-underline flex-1">
+               <div className="flex items-center justify-between group/trigger bg-muted/30">
+                <AccordionTrigger className="p-4 hover:no-underline">
                     <div className="flex items-center gap-2">
                       <GripVertical className="size-4 text-muted-foreground" />
                       <span className="font-semibold font-headline">{group.name}</span>
