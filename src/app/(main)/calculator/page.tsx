@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -245,11 +246,11 @@ function StockValueCalculator() {
                     <Input id="ticker" type="text" value={ticker} onChange={e => setTicker(e.target.value.toUpperCase())} placeholder="e.g. AAPL" />
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="ownerEarnings">Owner's Earnings</Label>
+                    <Label htmlFor="ownerEarnings">Owner&#39;s Earnings</Label>
                     <Input id="ownerEarnings" type="number" value={ownerEarnings} onChange={e => setOwnerEarnings(Number(e.target.value))} />
                 </div>
                 <div className="space-y-2">
-                    <Label>Growth Rate: {growthRate}%</Label>
+                    <Label>Next {projectionYears} Years Growth Rate: {growthRate}%</Label>
                     <Slider value={[growthRate]} onValueChange={v => setGrowthRate(v[0])} max={30} step={0.5} />
                 </div>
                 <div className="space-y-2">
@@ -266,6 +267,17 @@ function StockValueCalculator() {
                 <div className="text-5xl font-bold text-primary">{formatCurrency(intrinsicValue, 'USD')}</div>
                 <p className="text-xs text-muted-foreground mt-2">Based on a {projectionYears}-year projection with a {terminalGrowthRate}% terminal growth rate.</p>
             </div>
+        </div>
+        <div className="space-y-4 pt-6 border-t">
+          <h4 className="font-semibold font-headline">Calculation Formula</h4>
+          <div className="text-xs text-muted-foreground bg-muted/30 p-4 rounded-md space-y-2 font-mono">
+              <p>1. Sum of Discounted Future Earnings (for {projectionYears} years)</p>
+              <p className="pl-4">PV = &sum; [OE * (1 + g)<sup>n</sup> / (1 + d)<sup>n</sup>]</p>
+              <p>2. Discounted Terminal Value (Gordon Growth Model)</p>
+              <p className="pl-4">DTV = [OE * (1 + g)<sup>{projectionYears}</sup> * (1 + t) / (d - t)] / (1 + d)<sup>{projectionYears}</sup></p>
+              <p className="font-semibold mt-2">Intrinsic Value = PV + DTV</p>
+              <p className="text-xs mt-4">Where: <br/> OE = Owner's Earnings <br/> g = Growth Rate ({growthRate}%) <br/> d = Discount Rate ({discountRate}%) <br/> t = Terminal Growth Rate ({terminalGrowthRate}%) <br/> n = Year (1 to {projectionYears})</p>
+          </div>
         </div>
       </CardContent>
     </Card>
