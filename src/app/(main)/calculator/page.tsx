@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -205,21 +206,21 @@ function RealEstateCalculator() {
 
 function StockValueCalculator() {
   const [ticker, setTicker] = useState('GOOGL');
-  const [eps, setEps] = useState(150);
+  const [ownerEarnings, setOwnerEarnings] = useState(150);
   const [growthRate, setGrowthRate] = useState(10);
   const [discountRate, setDiscountRate] = useState(8);
   const terminalGrowthRate = 2.5;
 
   const intrinsicValue = useMemo(() => {
     try {
-      let projectedEps = eps;
+      let projectedEarnings = ownerEarnings;
       let discountedValue = 0;
       for (let i = 1; i <= 5; i++) {
-        projectedEps *= (1 + growthRate / 100);
-        discountedValue += projectedEps / Math.pow(1 + discountRate / 100, i);
+        projectedEarnings *= (1 + growthRate / 100);
+        discountedValue += projectedEarnings / Math.pow(1 + discountRate / 100, i);
       }
       
-      const terminalValue = (projectedEps * (1 + terminalGrowthRate / 100)) / ((discountRate - terminalGrowthRate) / 100);
+      const terminalValue = (projectedEarnings * (1 + terminalGrowthRate / 100)) / ((discountRate - terminalGrowthRate) / 100);
       const discountedTerminalValue = terminalValue / Math.pow(1 + discountRate / 100, 5);
       
       const totalValue = discountedValue + discountedTerminalValue;
@@ -227,7 +228,7 @@ function StockValueCalculator() {
     } catch {
       return 0;
     }
-  }, [eps, growthRate, discountRate]);
+  }, [ownerEarnings, growthRate, discountRate]);
 
   return (
     <Card>
@@ -243,8 +244,8 @@ function StockValueCalculator() {
                     <Input id="ticker" type="text" value={ticker} onChange={e => setTicker(e.target.value.toUpperCase())} placeholder="e.g. AAPL" />
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="eps">Current EPS (Earnings Per Share)</Label>
-                    <Input id="eps" type="number" value={eps} onChange={e => setEps(Number(e.target.value))} />
+                    <Label htmlFor="ownerEarnings">Owner's Earnings</Label>
+                    <Input id="ownerEarnings" type="number" value={ownerEarnings} onChange={e => setOwnerEarnings(Number(e.target.value))} />
                 </div>
                 <div className="space-y-2">
                     <Label>Next 5 Years Growth Rate: {growthRate}%</Label>
