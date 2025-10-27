@@ -26,6 +26,7 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from "@/hooks/use-toast";
@@ -185,16 +186,16 @@ const EditNoteDialog: React.FC<{ isOpen: boolean, setIsOpen: (open: boolean) => 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="group">Group</Label>
-            <select
-              id="group"
-              value={groupId}
-              onChange={(e) => setGroupId(e.target.value)}
-              className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {groups.map(group => (
-                <option key={group.id} value={group.id}>{group.name}</option>
-              ))}
-            </select>
+             <Select value={groupId} onValueChange={setGroupId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a group" />
+              </SelectTrigger>
+              <SelectContent>
+                {groups.map(group => (
+                  <SelectItem key={group.id} value={group.id}>{group.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="content">Content (Doctrine)</Label>
@@ -352,10 +353,16 @@ export function NotesContainer() {
   };
 
   const handleMoveNote = (noteId: string, oldGroupId: string, newGroupId: string) => {
-    const noteRef = ref(db, `/principles/${noteId}`);
-    set(noteRef, { groupId: newGroupId })
-        .then(() => toast({ title: "Note moved." }))
-        .catch(error => toast({ title: "Error moving note", description: error.message, variant: "destructive" }));
+    const principlesRef = ref(db, 'principles');
+    onValue(principlesRef, (snapshot) => {
+      const principles = snapshot.val();
+      if (principles && principles[noteId]) {
+        const noteData = { ...principles[noteId], groupId: newGroupId };
+        set(ref(db, `/principles/${noteId}`), noteData)
+          .then(() => toast({ title: "Note moved." }))
+          .catch(error => toast({ title: "Error moving note", description: error.message, variant: "destructive" }));
+      }
+    }, { onlyOnce: true });
   };
 
   const handleSaveNote = (note: {id: string, content: string}, groupId: string) => {
@@ -461,7 +468,7 @@ export function NotesContainer() {
           <Card key={group.id} className="overflow-hidden">
             <AccordionItem value={group.id} className="border-b-0">
                <div className="flex items-center justify-between group/trigger bg-muted/30">
-                <AccordionTrigger className="p-4 hover:no-underline">
+                <AccordionTrigger className="p-4 hover:no-underline flex-1">
                     <div className="flex items-center gap-2">
                       <GripVertical className="size-4 text-muted-foreground" />
                       <span className="font-semibold font-headline">{group.name}</span>
@@ -511,3 +518,5 @@ export function NotesContainer() {
     </div>
   );
 }
+
+    
