@@ -329,7 +329,7 @@ function StockValueCalculator() {
               <p>1. Sum of Discounted Future Earnings (for {projectionYears} years)</p>
               <p className="pl-4">PV = &sum; [OE * (1 + g)<sup>n</sup> / (1 + d)<sup>n</sup>]</p>
               <p>2. Discounted Terminal Value (Gordon Growth Model)</p>
-              <p className="pl-4">DTV = [OE * (1 + g)<sup>{projectionYears}</sup> * (1 + t) / (d - t)] / (1 + d)<sup>{projectionYears}</sup></p>
+              <p className="pl-4">DTV = [OE * (1 + g)<sup>{'{'}{projectionYears}{'}'}</sup> * (1 + t) / (d - t)] / (1 + d)<sup>{'{'}{projectionYears}{'}'}</sup></p>
               <p className="font-semibold mt-2">Intrinsic Value = PV + DTV</p>
               <p className="text-xs mt-4">Where: <br/> OE = Owner's Earnings <br/> g = Growth Rate ({growthRate}%) <br/> d = Discount Rate ({discountRate}%) <br/> t = Terminal Growth Rate ({terminalGrowthRate}%) <br/> n = Year (1 to {projectionYears})</p>
           </div>

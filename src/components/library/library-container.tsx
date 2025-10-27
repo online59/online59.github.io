@@ -196,6 +196,9 @@ const LibraryCard: React.FC<{ item: StockLibraryItem; onEdit: (item: StockLibrar
             </CardHeader>
             <CardContent className="space-y-3 flex-grow">
                 <p className="text-3xl font-bold text-primary">{formatCurrency(item.calculatedPrice, 'USD')}</p>
+                 <div className="text-sm text-muted-foreground">
+                    Owner's Earnings: {formatCurrency(item.ownerEarnings, 'USD')}
+                </div>
                  <Collapsible>
                     <CollapsibleContent className="prose prose-sm dark:prose-invert text-muted-foreground mt-4 whitespace-pre-wrap">
                       {item.analysis}
@@ -211,8 +214,8 @@ const LibraryCard: React.FC<{ item: StockLibraryItem; onEdit: (item: StockLibrar
                     )}
                  </Collapsible>
             </CardContent>
-            <CardFooter className="text-xs text-muted-foreground">
-                <p>G: {item.growthRate}% | D: {item.discountRate}% | Y: {item.projectionYears}</p>
+            <CardFooter className="text-xs text-muted-foreground flex-col items-start">
+                <p>Growth: {item.growthRate}% | Discount: {item.discountRate}% | Years: {item.projectionYears}</p>
             </CardFooter>
             
             <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
@@ -329,3 +332,4 @@ export function LibraryContainer() {
     </div>
   );
 }
+
