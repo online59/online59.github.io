@@ -10,6 +10,11 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { useToast } from "@/hooks/use-toast";
+import { ref, set, get } from "firebase/database";
+import { db } from '@/lib/firebase';
+import { Library } from 'lucide-react';
 
 const formatCurrency = (value: number, currency = 'THB') => {
   return new Intl.NumberFormat('th-TH', { style: 'currency', currency: currency }).format(value);
@@ -213,6 +218,8 @@ function StockValueCalculator() {
   const [projectionYears, setProjectionYears] = useState(5);
   const terminalGrowthRate = 2.5;
 
+  const { toast } = useToast();
+
   const intrinsicValue = useMemo(() => {
     try {
       let projectedEarnings = ownerEarnings;
@@ -232,6 +239,47 @@ function StockValueCalculator() {
     }
   }, [ownerEarnings, growthRate, discountRate, projectionYears]);
 
+  const handleAddToLibrary = async () => {
+    if (!ticker.trim()) {
+      toast({ title: "Stock ticker cannot be empty.", variant: "destructive" });
+      return;
+    }
+
+    const libraryRef = ref(db, 'library');
+    const snapshot = await get(libraryRef);
+    const libraryData = snapshot.val() || {};
+    
+    const existingEntryId = Object.keys(libraryData).find(key => libraryData[key].ticker === ticker);
+
+    const newEntry = {
+      ticker: ticker,
+      calculatedPrice: intrinsicValue,
+      calculationDate: new Date().toISOString(),
+      ownerEarnings,
+      growthRate,
+      discountRate,
+      projectionYears,
+    };
+
+    const entryId = existingEntryId || ticker; 
+    const entryRef = ref(db, `library/${entryId}`);
+    
+    set(entryRef, newEntry)
+      .then(() => {
+        toast({
+          title: `Stock ${existingEntryId ? 'Updated' : 'Added'}`,
+          description: `${ticker} has been ${existingEntryId ? 'updated in' : 'added to'} your library.`,
+        });
+      })
+      .catch((error) => {
+        toast({
+          title: "Error saving to library",
+          description: error.message,
+          variant: "destructive",
+        });
+      });
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -246,7 +294,7 @@ function StockValueCalculator() {
                     <Input id="ticker" type="text" value={ticker} onChange={e => setTicker(e.target.value.toUpperCase())} placeholder="e.g. AAPL" />
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="ownerEarnings">Owner&#39;s Earnings</Label>
+                    <Label htmlFor="ownerEarnings">Owner's Earnings</Label>
                     <Input id="ownerEarnings" type="number" value={ownerEarnings} onChange={e => setOwnerEarnings(Number(e.target.value))} />
                 </div>
                 <div className="space-y-2">
@@ -266,6 +314,10 @@ function StockValueCalculator() {
                 <h3 className="text-lg font-semibold font-headline">Estimated Intrinsic Value</h3>
                 <div className="text-5xl font-bold text-primary">{formatCurrency(intrinsicValue, 'USD')}</div>
                 <p className="text-xs text-muted-foreground mt-2">Based on a {projectionYears}-year projection with a {terminalGrowthRate}% terminal growth rate.</p>
+                <Button onClick={handleAddToLibrary} className="mt-4">
+                  <Library className="mr-2 size-4" />
+                  Add to Library
+                </Button>
             </div>
         </div>
         <div className="space-y-4 pt-6 border-t">

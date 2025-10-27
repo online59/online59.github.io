@@ -1,3 +1,4 @@
+
 export type Note = {
   id: string;
   title: string;
@@ -12,4 +13,13 @@ export type Group = {
   notes: Note[];
 };
 
+export type StockLibraryItem = {
+    ticker: string;
+    calculatedPrice: number;
+    calculationDate: string;
+    ownerEarnings: number;
+    growthRate: number;
+    discountRate: number;
+    projectionYears: number;
+};
     

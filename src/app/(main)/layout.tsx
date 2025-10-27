@@ -1,9 +1,10 @@
+
 "use client";
 
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calculator, Home, Notebook } from "lucide-react";
+import { Calculator, Home, Notebook, Library } from "lucide-react";
 import {
   SidebarProvider,
   Sidebar,
@@ -72,6 +73,18 @@ export default function MainLayout({
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === "/library"}
+                tooltip="Library"
+              >
+                <Link href="/library">
+                  <Library />
+                  <span>Library</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarContent>
       </Sidebar>
@@ -98,6 +111,8 @@ function getPageTitle(pathname: string) {
       return "Financial Calculators";
     case "/notes":
       return "Personal Notes";
+    case "/library":
+      return "Stock Library";
     default:
       return "Devfolio Hub";
   }
