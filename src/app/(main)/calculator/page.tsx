@@ -264,7 +264,10 @@ function StockValueCalculator() {
     const entryId = existingEntryId || ticker; 
     const entryRef = ref(db, `library/${entryId}`);
     
-    set(entryRef, newEntry)
+    // Create a version without the ticker for Firebase, as it's the key
+    const { ticker: _, ...dataToSave } = newEntry;
+
+    set(entryRef, dataToSave)
       .then(() => {
         toast({
           title: `Stock ${existingEntryId ? 'Updated' : 'Added'}`,

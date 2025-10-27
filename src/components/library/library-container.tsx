@@ -3,18 +3,21 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { db } from '@/lib/firebase';
-import { ref, onValue, set, push, remove, get } from 'firebase/database';
+import { ref, onValue, set, remove } from 'firebase/database';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/hooks/use-toast";
-import { LoaderCircle, MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import { LoaderCircle, MoreVertical, Pencil, Trash2, Bot, FileText } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import type { StockLibraryItem } from '@/lib/types';
+import { analyzeStock } from '@/ai/flows/analyze-stock-flow';
 
 const formatCurrency = (value: number, currency = 'USD') => {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(value);
@@ -119,23 +122,101 @@ const EditStockDialog: React.FC<{
   )
 };
 
-const LibraryCard: React.FC<{ item: StockLibraryItem; onEdit: (item: StockLibraryItem) => void; onDelete: (itemId: string) => void; }> = 
-({ item, onEdit, onDelete }) => {
+const EditNoteDialog: React.FC<{
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+  onSave: (note: string) => void;
+  item: StockLibraryItem;
+}> = ({ isOpen, setIsOpen, onSave, item }) => {
+  const [note, setNote] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (item) {
+      setNote(item.analysis || "");
+    }
+  }, [item]);
+
+  const handleGenerateAnalysis = async () => {
+    setIsGenerating(true);
+    try {
+      const analysisInput = {
+        ticker: item.ticker,
+        eps: String(item.ownerEarnings), // Assuming EPS can be derived or is similar to Owner Earnings for this
+        growthRate: String(item.growthRate),
+        intrinsicValue: String(item.calculatedPrice),
+      };
+      const result = await analyzeStock(analysisInput);
+      setNote(note + "\n\n--- AI Analysis ---\n" + result.analysis);
+    } catch (error) {
+      console.error("AI analysis failed:", error);
+      toast({
+        title: "AI Analysis Failed",
+        description: "Could not generate analysis for this stock.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Analysis Note for {item.ticker}</DialogTitle>
+          <DialogDescription>Add or edit your analysis for this stock.</DialogDescription>
+        </DialogHeader>
+        <div className="py-4">
+          <Textarea
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            rows={12}
+            placeholder="Your analysis notes..."
+          />
+        </div>
+        <DialogFooter>
+            <Button variant="outline" onClick={handleGenerateAnalysis} disabled={isGenerating}>
+              {isGenerating ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2 h-4 w-4" />}
+              Analyze with AI
+            </Button>
+            <div className="flex-grow"></div>
+            <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+            <Button onClick={() => onSave(note)}>Save Note</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+
+const LibraryCard: React.FC<{ item: StockLibraryItem; onEdit: (item: StockLibraryItem) => void; onDelete: (itemId: string) => void; onNoteSave: (itemId: string, note: string) => void; }> = 
+({ item, onEdit, onDelete, onNoteSave }) => {
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [isNoteDialogOpen, setNoteDialogOpen] = useState(false);
     
     return (
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-xl font-headline">{item.ticker}</CardTitle>
+        <Card className="flex flex-col">
+            <CardHeader className="flex flex-row items-start justify-between pb-2">
+                <div>
+                    <CardTitle className="text-xl font-headline">{item.ticker}</CardTitle>
+                    <p className="text-xs text-muted-foreground pt-1">
+                        Calculated on: {formatDate(item.calculationDate)}
+                    </p>
+                </div>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Button variant="ghost" size="icon" className="-mt-2 -mr-2 h-8 w-8">
                             <MoreVertical className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => onEdit(item)}>
-                            <Pencil className="mr-2 h-4 w-4" /> Edit
+                            <Pencil className="mr-2 h-4 w-4" /> Edit Valuation
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setNoteDialogOpen(true)}>
+                            <FileText className="mr-2 h-4 w-4" /> {item.analysis ? "Edit" : "Add"} Note
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive focus:text-destructive">
                             <Trash2 className="mr-2 h-4 w-4" /> Delete
@@ -143,14 +224,26 @@ const LibraryCard: React.FC<{ item: StockLibraryItem; onEdit: (item: StockLibrar
                     </DropdownMenuContent>
                 </DropdownMenu>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-3 flex-grow">
                 <p className="text-3xl font-bold text-primary">{formatCurrency(item.calculatedPrice, 'USD')}</p>
-                <div className="text-xs text-muted-foreground space-y-1">
-                    <p>Calculated on: {formatDate(item.calculationDate)}</p>
-                    <p>Owner Earnings: {formatCurrency(item.ownerEarnings, 'USD')}</p>
-                    <p>Growth: {item.growthRate}% | Discount: {item.discountRate}% | Years: {item.projectionYears}</p>
-                </div>
+                 <Collapsible>
+                    <CollapsibleContent className="prose prose-sm dark:prose-invert text-muted-foreground mt-4 whitespace-pre-wrap">
+                      {item.analysis}
+                    </CollapsibleContent>
+                    {item.analysis && (
+                      <CollapsibleTrigger asChild>
+                        <Button variant="link" size="sm" className="p-0 h-auto text-xs">
+                          {/* This is a bit of a hack to have the state text change */}
+                          <span className="data-[state=open]:hidden">Show Note</span>
+                          <span className="data-[state=closed]:hidden">Hide Note</span>
+                        </Button>
+                      </CollapsibleTrigger>
+                    )}
+                 </Collapsible>
             </CardContent>
+            <CardFooter className="text-xs text-muted-foreground">
+                <p>G: {item.growthRate}% | D: {item.discountRate}% | Y: {item.projectionYears}</p>
+            </CardFooter>
             
             <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                 <AlertDialogContent>
@@ -164,6 +257,15 @@ const LibraryCard: React.FC<{ item: StockLibraryItem; onEdit: (item: StockLibrar
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+            <EditNoteDialog 
+              isOpen={isNoteDialogOpen} 
+              setIsOpen={setNoteDialogOpen} 
+              onSave={(note) => {
+                onNoteSave(item.ticker, note);
+                setNoteDialogOpen(false);
+              }}
+              item={item} 
+            />
         </Card>
     );
 };
@@ -209,13 +311,26 @@ export function LibraryContainer() {
 
   const handleSave = (item: StockLibraryItem) => {
     const itemRef = ref(db, `library/${item.ticker}`);
-    set(itemRef, item)
+    // Create a copy of the item without the 'ticker' property for Firebase
+    const { ticker, ...dataToSave } = item;
+    set(itemRef, dataToSave)
       .then(() => {
         toast({ title: "Valuation updated." });
         setEditDialogOpen(false);
         setItemToEdit(null);
       })
       .catch(error => toast({ title: "Error updating valuation", description: error.message, variant: "destructive" }));
+  };
+  
+  const handleNoteSave = (itemId: string, note: string) => {
+    const itemRef = ref(db, `library/${itemId}/analysis`);
+    set(itemRef, note)
+      .then(() => {
+        toast({ title: "Note saved." });
+      })
+      .catch((error) => {
+        toast({ title: "Error saving note", description: error.message, variant: "destructive" });
+      });
   };
 
   if (loading) {
@@ -231,7 +346,7 @@ export function LibraryContainer() {
       {library.length > 0 ? (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {library.map(item => (
-            <LibraryCard key={item.ticker} item={item} onEdit={handleEdit} onDelete={handleDelete} />
+            <LibraryCard key={item.ticker} item={item} onEdit={handleEdit} onDelete={handleDelete} onNoteSave={handleNoteSave} />
           ))}
         </div>
       ) : (

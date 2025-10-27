@@ -21,5 +21,6 @@ export type StockLibraryItem = {
     growthRate: number;
     discountRate: number;
     projectionYears: number;
+    analysis?: string; // Optional analysis note
 };
     
