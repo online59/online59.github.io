@@ -14,10 +14,9 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/hooks/use-toast";
-import { LoaderCircle, MoreVertical, Pencil, Trash2, Bot, FileText } from 'lucide-react';
+import { LoaderCircle, MoreVertical, Pencil, Trash2, FileText } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import type { StockLibraryItem } from '@/lib/types';
-import { analyzeStock } from '@/ai/flows/analyze-stock-flow';
 
 const formatCurrency = (value: number, currency = 'USD') => {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(value);
@@ -129,37 +128,12 @@ const EditNoteDialog: React.FC<{
   item: StockLibraryItem;
 }> = ({ isOpen, setIsOpen, onSave, item }) => {
   const [note, setNote] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const { toast } = useToast();
 
   useEffect(() => {
     if (item) {
       setNote(item.analysis || "");
     }
   }, [item]);
-
-  const handleGenerateAnalysis = async () => {
-    setIsGenerating(true);
-    try {
-      const analysisInput = {
-        ticker: item.ticker,
-        eps: String(item.ownerEarnings), // Assuming EPS can be derived or is similar to Owner Earnings for this
-        growthRate: String(item.growthRate),
-        intrinsicValue: String(item.calculatedPrice),
-      };
-      const result = await analyzeStock(analysisInput);
-      setNote(note + "\n\n--- AI Analysis ---\n" + result.analysis);
-    } catch (error) {
-      console.error("AI analysis failed:", error);
-      toast({
-        title: "AI Analysis Failed",
-        description: "Could not generate analysis for this stock.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -177,10 +151,6 @@ const EditNoteDialog: React.FC<{
           />
         </div>
         <DialogFooter>
-            <Button variant="outline" onClick={handleGenerateAnalysis} disabled={isGenerating}>
-              {isGenerating ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2 h-4 w-4" />}
-              Analyze with AI
-            </Button>
             <div className="flex-grow"></div>
             <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
             <Button onClick={() => onSave(note)}>Save Note</Button>
