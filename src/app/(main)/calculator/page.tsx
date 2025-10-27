@@ -163,7 +163,7 @@ function RealEstateCalculator() {
           </div>
           <div className="bg-muted/50 rounded-lg p-6 space-y-4">
             <h3 className="text-lg font-semibold font-headline">Your Estimated Payment</h3>
-            <p className="text-sm text-muted-foreground">First month's payment shown below. Payments may adjust.</p>
+            <p className="text-sm text-muted-foreground">First month&#x27;s payment shown below. Payments may adjust.</p>
             <div className="text-4xl font-bold text-primary">{formatCurrency(monthlyPayment)}/mo</div>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between"><span>Loan Amount:</span> <strong>{formatCurrency(loanAmount)}</strong></div>
@@ -209,26 +209,27 @@ function StockValueCalculator() {
   const [ownerEarnings, setOwnerEarnings] = useState(150);
   const [growthRate, setGrowthRate] = useState(10);
   const [discountRate, setDiscountRate] = useState(8);
+  const [projectionYears, setProjectionYears] = useState(5);
   const terminalGrowthRate = 2.5;
 
   const intrinsicValue = useMemo(() => {
     try {
       let projectedEarnings = ownerEarnings;
       let discountedValue = 0;
-      for (let i = 1; i <= 5; i++) {
+      for (let i = 1; i <= projectionYears; i++) {
         projectedEarnings *= (1 + growthRate / 100);
         discountedValue += projectedEarnings / Math.pow(1 + discountRate / 100, i);
       }
       
       const terminalValue = (projectedEarnings * (1 + terminalGrowthRate / 100)) / ((discountRate - terminalGrowthRate) / 100);
-      const discountedTerminalValue = terminalValue / Math.pow(1 + discountRate / 100, 5);
+      const discountedTerminalValue = terminalValue / Math.pow(1 + discountRate / 100, projectionYears);
       
       const totalValue = discountedValue + discountedTerminalValue;
       return isNaN(totalValue) || !isFinite(totalValue) ? 0 : totalValue;
     } catch {
       return 0;
     }
-  }, [ownerEarnings, growthRate, discountRate]);
+  }, [ownerEarnings, growthRate, discountRate, projectionYears]);
 
   return (
     <Card>
@@ -248,18 +249,22 @@ function StockValueCalculator() {
                     <Input id="ownerEarnings" type="number" value={ownerEarnings} onChange={e => setOwnerEarnings(Number(e.target.value))} />
                 </div>
                 <div className="space-y-2">
-                    <Label>Next 5 Years Growth Rate: {growthRate}%</Label>
+                    <Label>Growth Rate: {growthRate}%</Label>
                     <Slider value={[growthRate]} onValueChange={v => setGrowthRate(v[0])} max={30} step={0.5} />
                 </div>
                 <div className="space-y-2">
                     <Label>Discount Rate: {discountRate}%</Label>
                     <Slider value={[discountRate]} onValueChange={v => setDiscountRate(v[0])} max={20} step={0.5} />
                 </div>
+                 <div className="space-y-2">
+                    <Label>Projection Years: {projectionYears}</Label>
+                    <Slider value={[projectionYears]} onValueChange={v => setProjectionYears(v[0])} max={20} step={1} />
+                </div>
             </div>
             <div className="bg-muted/50 rounded-lg p-6 flex flex-col justify-center items-center text-center">
                 <h3 className="text-lg font-semibold font-headline">Estimated Intrinsic Value</h3>
                 <div className="text-5xl font-bold text-primary">{formatCurrency(intrinsicValue, 'USD')}</div>
-                <p className="text-xs text-muted-foreground mt-2">Based on a 5-year projection with a {terminalGrowthRate}% terminal growth rate.</p>
+                <p className="text-xs text-muted-foreground mt-2">Based on a {projectionYears}-year projection with a {terminalGrowthRate}% terminal growth rate.</p>
             </div>
         </div>
       </CardContent>
