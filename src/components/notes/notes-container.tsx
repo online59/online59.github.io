@@ -171,7 +171,7 @@ const EditNoteDialog: React.FC<{ isOpen: boolean, setIsOpen: (open: boolean) => 
       console.error("No group selected");
       return;
     }
-    onSave({ id: noteToEdit?.note.id || '', content }, groupId);
+    onSave({ id: noteToEdit?.note.id || '', content: content }, groupId);
   }
 
   return (
@@ -468,7 +468,7 @@ export function NotesContainer() {
           <Card key={group.id} className="overflow-hidden">
             <AccordionItem value={group.id} className="border-b-0">
                <div className="flex items-center justify-between group/trigger bg-muted/30">
-                <AccordionTrigger className="p-4 hover:no-underline flex-1">
+                <AccordionTrigger className="p-4 hover:no-underline flex-1 justify-start">
                     <div className="flex items-center gap-2">
                       <GripVertical className="size-4 text-muted-foreground" />
                       <span className="font-semibold font-headline">{group.name}</span>
