@@ -206,8 +206,8 @@ const LibraryCard: React.FC<{ item: StockLibraryItem; onEdit: (item: StockLibrar
                     {item.analysis && (
                       <CollapsibleTrigger asChild>
                         <Button variant="link" size="sm" className="p-0 h-auto text-xs">
-                          <span className="data-[state=closed]:block hidden">Show Note</span>
-                          <span className="data-[state=open]:block hidden">Hide Note</span>
+                          <span className="data-[state=open]:hidden">Show Note</span>
+                          <span className="data-[state=closed]:hidden">Hide Note</span>
                         </Button>
                       </CollapsibleTrigger>
                     )}
