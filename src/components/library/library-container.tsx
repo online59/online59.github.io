@@ -206,16 +206,15 @@ const LibraryCard: React.FC<{ item: StockLibraryItem; onEdit: (item: StockLibrar
                     {item.analysis && (
                       <CollapsibleTrigger asChild>
                         <Button variant="link" size="sm" className="p-0 h-auto text-xs">
-                          {/* This is a bit of a hack to have the state text change */}
-                          <span className="data-[state=open]:hidden">Show Note</span>
-                          <span className="data-[state=closed]:hidden">Hide Note</span>
+                          <span className="data-[state=closed]:block hidden">Show Note</span>
+                          <span className="data-[state=open]:block hidden">Hide Note</span>
                         </Button>
                       </CollapsibleTrigger>
                     )}
                  </Collapsible>
             </CardContent>
             <CardFooter className="text-xs text-muted-foreground flex-col items-start">
-                <p>Growth: {item.growthRate}% | Discount: {item.discountRate}% | Years: {item.projectionYears}</p>
+                <p>Growth Rate: {item.growthRate}% | Discount Rate: {item.discountRate}% | Projection Years: {item.projectionYears}</p>
             </CardFooter>
             
             <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
@@ -332,4 +331,3 @@ export function LibraryContainer() {
     </div>
   );
 }
-
