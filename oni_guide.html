@@ -156,6 +156,26 @@
     <li class="sub"><a href="#s12-checklist">12.12 SPOM Checklist</a></li>
     <li><a href="#s13">13. Skills, Morale &amp; Stress</a></li>
     <li><a href="#s14">14. Misc — Digging &amp; Storage</a></li>
+    <li><a href="#s15">15. Temperature &amp; Cooling</a></li>
+    <li class="sub"><a href="#s15-principle">15.1 Don't Heat the Base</a></li>
+    <li class="sub"><a href="#s15-insulation">15.2 Insulation &amp; Materials</a></li>
+    <li class="sub"><a href="#s15-aquatuner">15.3 Aquatuner + Steam Turbine</a></li>
+    <li class="sub"><a href="#s15-overcool">15.4 Don't Over-Delete Heat</a></li>
+    <li class="sub"><a href="#s15-checklist">15.5 Cooling Checklist</a></li>
+    <li><a href="#s16">16. Disease &amp; Medicine</a></li>
+    <li class="sub"><a href="#s16-types">16.1 Germ Types</a></li>
+    <li class="sub"><a href="#s16-foodpoison">16.2 Food Poisoning</a></li>
+    <li class="sub"><a href="#s16-slimelung">16.3 Slimelung — Full Handling</a></li>
+    <li class="sub"><a href="#s16-disinfect">16.4 Disinfection Methods</a></li>
+    <li class="sub"><a href="#s16-checklist">16.5 Disease Checklist</a></li>
+    <li><a href="#s17">17. Industry &amp; Refinement</a></li>
+    <li class="sub"><a href="#s17-buildings">17.1 Refinement Buildings</a></li>
+    <li class="sub"><a href="#s17-cooling">17.2 The Industrial Brick</a></li>
+    <li class="sub"><a href="#s17-steel">17.3 Steel Production</a></li>
+    <li><a href="#s18">18. Oil, Petroleum &amp; Exosuits</a></li>
+    <li class="sub"><a href="#s18-oil">18.1 Oil Refinery Chain</a></li>
+    <li class="sub"><a href="#s18-uses">18.2 Petroleum Uses</a></li>
+    <li class="sub"><a href="#s18-exosuit">18.3 Exosuits &amp; Exploration</a></li>
   </ul>
 </nav>
 
@@ -1679,6 +1699,216 @@ PER-FLOOR TAP:
       <li><strong>INDUSTRY / REFINERY:</strong> ore bins beside the refinery; output bin nearby. Keep far from the living base.</li>
       <li><strong>MATERIAL/GENERAL:</strong> central-lower storage room for raw rock/ore; one filter per bin.</li>
       <li>Mark loose debris to Sweep; set storage priority so idle Dupes tidy automatically. Storing solids in a vacuum or cold room stops food rot and heat leaking (late-game trick).</li>
+    </ul>
+  </div>
+
+  <!-- ================================================================ -->
+  <div class="section">
+    <h2 id="s15">15. Temperature &amp; Cooling <a class="back" href="#top">^ top</a></h2>
+    <p>Heat is the silent killer: it never disappears on its own, it only moves. The game constantly <em>adds</em> heat (machines, hot geysers), so a maturing colony must eventually <strong>delete</strong> heat, not just shuffle it around. Get temperature tech running before ~cycle 80.</p>
+
+    <h3 id="s15-principle">15.1 Rule #1 — Don't Heat the Base in the First Place</h3>
+    <ul>
+      <li>The cheapest cooling is heat you never create near living space. Build heat producers — Coal/Petroleum Generators, Metal Refinery, Glass Forge, Kiln — FAR from bedrooms, farms, and ranches, ideally outside the starter biome.</li>
+      <li>Keep temperature-sensitive things clustered and insulated: Dupe quarters, Mealwood/Bristle farms (die above 30&deg;C), and critter stables.</li>
+      <li>Move hot or cold liquids/gases only through INSULATED PIPE so they don't dump heat into rooms in transit (<a href="#s7-temp">7.7</a>).</li>
+      <li>Use Airflow/Mesh tiles to let heat-laden gas rise away from a room, not solid tiles that trap it.</li>
+    </ul>
+
+    <h3 id="s15-insulation">15.2 Insulation &amp; Early Cooling</h3>
+    <ul>
+      <li><strong>Insulated Tile material tiers:</strong> Igneous/Mafic Rock is the best cheap early choice; <strong>Ceramic</strong> (Kiln) is a big upgrade; <strong>Abyssalite</strong> (Insulation ore) is near-perfect but slow to dig and haul. Reserve Abyssalite for sealing volcanoes and extreme biomes.</li>
+      <li><strong>Wheezewort</strong> (free early cooling): a wild plant that radiates cold in a Hydrogen atmosphere — no power. Drop a few into a farm or a hot pocket. Limited capacity, but excellent as a stopgap before active cooling.</li>
+      <li><strong>Seal biome walls</strong> with Insulated Tiles + Airlocks so hot biomes (Magma, Oil, Caustic) don't bleed heat into the base.</li>
+      <li><strong>Cool incoming water</strong> before it reaches the base — a 95&deg;C Water Geyser fed straight into farms/SPOM will slowly cook everything (<a href="#s7-geysers">7.6</a>).</li>
+    </ul>
+
+    <h3 id="s15-aquatuner">15.3 The Aquatuner + Steam Turbine Loop (heat deletion)</h3>
+    <p>The standard mid/late-game cooling engine. The Aquatuner chills a coolant loop; the heat it dumps is fed to a Steam Turbine, which converts that heat into power — permanently removing it from the world.</p>
+    <table>
+      <tr><th>Building</th><th>Key Stats</th></tr>
+      <tr><td>Thermo Aquatuner</td><td>1,200 W; removes exactly <strong>14&deg;C per pass</strong> from each 10 kg liquid packet (regardless of liquid); ~10 kg/s through a full pipe. Dumps the extracted heat into its surroundings.</td></tr>
+      <tr><td>Steam Turbine</td><td>Runs on steam <strong>&ge;125&deg;C</strong>; up to 850 W; outputs water at <strong>95&deg;C</strong>; the building must stay below 100&deg;C; generates ~4 kDTU/s of its own waste heat.</td></tr>
+    </table>
+    <ul>
+      <li><strong>How to build it:</strong> put the Aquatuner inside a sealed steam room. Its dumped heat boils the water into steam; the Steam Turbine on top consumes the steam (cooling it to 95&deg;C) and makes power. The 95&deg;C output water is piped back down to boil again — a closed self-sustaining box.</li>
+      <li><strong>Coolant choice:</strong> high specific heat capacity moves more heat per pass — Water/Polluted Water early; <strong>Super Coolant</strong> (late game) is far better. Run the Aquatuner's chilled coolant loop through whatever you need cold (base, farms, server of pipes around the SPOM, etc.).</li>
+      <li><strong>Ratios:</strong> with water/polluted water coolant, roughly a 2:3 turbine:aquatuner balance stabilizes near 200&deg;C steam at ~633 W net per aquatuner. Don't overthink early — one Aquatuner + one Turbine handles a small base.</li>
+      <li>Cross-reference: the SPOM uses this exact trick in its water-cooled variant (<a href="#s12-heat">12.8</a>); the industrial brick uses it for refinery heat (<a href="#s17-cooling">17.2</a>).</li>
+    </ul>
+    <pre>
+  SEALED STEAM BOX (cross-section):
+  +-----------------------------+
+  |      [ STEAM TURBINE ]      |  &lt;- consumes steam &ge;125&deg;C, outputs 95&deg;C water + power
+  |   steam (boiled by below)   |
+  |      [ AQUATUNER ]          |  &lt;- 1.2 kW; dumps heat here; chills the coolant loop
+  |   coolant in --&gt; --&gt; out    |  &lt;- this loop runs out to cool the base/farms/industry
+  +-----------------------------+
+   Turbine's 95&deg;C output water --&gt; piped back into the box to boil again.</pre>
+
+    <h3 id="s15-overcool">15.4 Don't Over-Delete Heat</h3>
+    <ul>
+      <li>Active cooling can run a base into FREEZING if left unchecked — frozen pipes burst, plants die of cold, water turns to ice tiles.</li>
+      <li>Gate the Aquatuner with a <strong>Thermo Sensor</strong> on the coolant loop: run only when the target zone is above your setpoint (<a href="#s11-schedule">11.6</a>).</li>
+      <li>Better: find synergies — feed "waste" cold to something that wants it, and pair heat-makers with heat-removers so the system self-balances.</li>
+    </ul>
+
+    <h3 id="s15-checklist">15.5 Cooling Checklist</h3>
+    <ul>
+      <li>[ ] Always: heat producers sealed far from farms/bedrooms/ranches behind insulated tiles.</li>
+      <li>[ ] Cycle 20&ndash;40: Wheezeworts + Insulated Tiles holding the line; cool geyser water before use.</li>
+      <li>[ ] Cycle 40&ndash;80: research Temperature Modulation; build the first Aquatuner + Steam Turbine box. Gate it with a Thermo Sensor.</li>
+      <li>[ ] Ongoing: watch the Temperature Overlay. If a zone trends up cycle over cycle, it's gaining heat faster than you delete it — add turbine/aquatuner capacity.</li>
+    </ul>
+  </div>
+
+  <!-- ================================================================ -->
+  <div class="section">
+    <h2 id="s16">16. Disease &amp; Medicine <a class="back" href="#top">^ top</a></h2>
+    <p>Germs cause debuffs, not instant death, but an outbreak during a stress spike can cascade into colony collapse. Prevention (hygiene + clean air) is far cheaper than cures.</p>
+
+    <h3 id="s16-types">16.1 Germ Types</h3>
+    <table>
+      <tr><th>Germ</th><th>Vector</th><th>Effect</th><th>Cure</th></tr>
+      <tr><td>Food Poisoning</td><td>Dirty hands / contaminated food &amp; water (NOT airborne)</td><td>Vomiting, stress; spreads contamination</td><td>Curative Tablet (Apothecary); no doctor needed</td></tr>
+      <tr><td>Slimelung</td><td>Inhaled polluted oxygen (airborne)</td><td>Breath drain, Athletics &minus;3, coughing</td><td>Medical Pack + doctor in a Sick Bay</td></tr>
+      <tr><td>Floral Scents</td><td>Airborne (from some plants)</td><td>Harmless / minor</td><td>Dissipates on its own</td></tr>
+      <tr><td>Zombie Spores</td><td>Sporechid plants (Spaced-Out-leaning; rare in base)</td><td>Severe debuff</td><td>Avoidance; suits</td></tr>
+    </table>
+    <p>The two that matter for a base-game playthrough are <strong>Food Poisoning</strong> and <strong>Slimelung</strong>.</p>
+
+    <h3 id="s16-foodpoison">16.2 Food Poisoning</h3>
+    <ul>
+      <li><strong>It is NOT airborne</strong> — it only enters through the mouth (eating/drinking contaminated material). That makes it easy to stop with hygiene.</li>
+      <li><strong>Hand washing is the whole game:</strong> a Wash Basin (no plumbing) or Sink (plumbed) on the EXIT tile of every Outhouse/Lavatory. Dupes wash on the way out, before touching food. This single habit prevents most outbreaks (<a href="#s9-germs">9.7</a>).</li>
+      <li>Keep food storage and the kitchen away from polluted water and toilets; refrigerate food to slow germ growth.</li>
+      <li><strong>Cure:</strong> Curative Tablets from an Apothecary. No doctor or Sick Bay required — any infected Dupe self-medicates.</li>
+    </ul>
+
+    <h3 id="s16-slimelung">16.3 Slimelung — Full Handling</h3>
+    <p>Slimelung is the disease most likely to wreck an early colony the first time you breach the Swamp/Slime biome. Handle it in three layers: <strong>avoid → contain → cure.</strong></p>
+
+    <h4>Where it comes from</h4>
+    <ul>
+      <li>Abundant in the <strong>Swamp/Slime Biome</strong>, living in Slime and in Polluted Oxygen. It multiplies rapidly in those mediums.</li>
+      <li><strong>Morbs</strong> (the floating critters) emit polluted oxygen full of Slimelung — kill or wall them off.</li>
+      <li>Dupes contract it by <strong>inhaling polluted oxygen</strong> that carries the germ; there's an infection roll at the start of the next cycle after exposure.</li>
+    </ul>
+
+    <h4>What it does</h4>
+    <ul>
+      <li>Infected Dupes get <strong>Breath &minus;1%/s and Athletics &minus;3</strong>, and cough out clouds of polluted oxygen carrying ~1,000 germs per cough — which infects others. It disrupts work and sleep but is <strong>not lethal</strong>.</li>
+      <li>Untreated, it clears on its own after about <strong>4 cycles</strong>.</li>
+    </ul>
+
+    <h4>1) Avoid — don't get infected</h4>
+    <ul>
+      <li>Don't breach the Slime biome until you can manage the polluted oxygen. When you do, dig in small steps and wall behind you.</li>
+      <li>Don't pipe or pump slime/polluted water through living areas.</li>
+      <li><strong>Atmo Suits / Oxygen Masks grant full immunity</strong> — Dupes breathe from the suit, not the environment. Suit up before entering Slime/Caustic biomes (<a href="#s18-exosuit">18.3</a>).</li>
+    </ul>
+
+    <h4>2) Contain — kill it in the air and on materials</h4>
+    <ul>
+      <li><strong>Deodorizer</strong> (120 W, consumes Filtration Medium/Sand): converts polluted oxygen → clean oxygen, killing the germs in the process. The frontline tool — ring slime areas and PO2 pockets with Deodorizers.</li>
+      <li><strong>Ore Scrubber</strong> on slime hauling routes: removes ~480,000 germs per pass (raw slime often carries ~900,000, so it may take two passes) before slime enters the base.</li>
+      <li><strong>Chlorine room:</strong> germs in a storage TANK (not in pipes) immersed in Chlorine die fast (half-life ~1/60 cycle). Store contaminated slime/water in a sealed chlorine room to sterilize it. Bleach Stone gives off chlorine for the same effect.</li>
+      <li>Radiation (Wheezeworts, Radiation Lamps) also kills the germ over time.</li>
+    </ul>
+
+    <h4>3) Cure — once a Dupe is infected</h4>
+    <ul>
+      <li>You need: an <strong>Apothecary</strong> to fabricate a <strong>Medical Pack</strong>, a <strong>Sick Bay</strong>, and a Dupe with the <strong>Medicine/Bedside Manner</strong> (Doctor) skill to administer it. The Medical Pack fully cures the infection.</li>
+      <li>If you have no doctor set up, the Dupe still recovers naturally in ~4 cycles — quarantine them (restrict to a sealed room with clean O2) so they don't cough-infect the rest of the colony in the meantime.</li>
+      <li>Build a small Hospital/Sick Bay wing early if you plan to mine Slime for Algae — you WILL get infections.</li>
+    </ul>
+
+    <h3 id="s16-disinfect">16.4 Disinfection Methods (quick reference)</h3>
+    <table>
+      <tr><th>Method</th><th>Kills germs in</th><th>Notes</th></tr>
+      <tr><td>Hand wash (Sink/Wash Basin)</td><td>On Dupe hands</td><td>Stops Food Poisoning at the source; place at every toilet exit</td></tr>
+      <tr><td>Deodorizer</td><td>Polluted oxygen (air)</td><td>PO2 → clean O2; main anti-Slimelung tool</td></tr>
+      <tr><td>Chlorine tank room</td><td>Liquids/solids stored in tanks</td><td>Only in tanks, NOT pipes; fast half-life</td></tr>
+      <tr><td>Ore Scrubber</td><td>On slime/ore being hauled</td><td>~480k germs/pass</td></tr>
+      <tr><td>Cooking / heat</td><td>In food</td><td>Cooking sterilizes ingredients</td></tr>
+      <tr><td>Time</td><td>Anywhere</td><td>Germs decay; infections self-clear in ~4 cycles</td></tr>
+    </table>
+
+    <h3 id="s16-checklist">16.5 Disease Checklist</h3>
+    <ul>
+      <li>[ ] Cycle 1&ndash;5: Wash Basin on every Outhouse/Lavatory exit (Food Poisoning prevention).</li>
+      <li>[ ] Before breaching Slime: have Deodorizers + Sand ready; plan to seal as you dig.</li>
+      <li>[ ] Mining Slime for Algae: Ore Scrubbers on the haul route; Deodorizers around the work face.</li>
+      <li>[ ] Set up a Chlorine room for sterilizing contaminated slime/water in tanks.</li>
+      <li>[ ] ~Cycle 30+: Apothecary + Sick Bay + a Doctor-skilled Dupe before serious slime work.</li>
+      <li>[ ] On any outbreak: quarantine coughing Dupes in a clean-O2 sealed room until cured.</li>
+    </ul>
+  </div>
+
+  <!-- ================================================================ -->
+  <div class="section">
+    <h2 id="s17">17. Industry &amp; Refinement <a class="back" href="#top">^ top</a></h2>
+    <p>Refinement turns raw ore/rock into the refined metals, glass, plastic, and steel that mid/late buildings need. Every one of these machines is a serious heat source — they belong in a dedicated, cooled "industrial brick" far from the living base.</p>
+
+    <h3 id="s17-buildings">17.1 Refinement Buildings</h3>
+    <table>
+      <tr><th>Building</th><th>Power</th><th>Makes</th><th>Heat / Notes</th></tr>
+      <tr><td>Rock Crusher</td><td>240 W</td><td>Sand from rock; refined metal from ore (slow); Lime from egg shells/fossil</td><td>Low heat; manual; the no-coolant way to get a little refined metal early</td></tr>
+      <tr><td>Kiln</td><td>—</td><td>Ceramic (from Clay + Coal); fires Ceramic for top-tier insulation</td><td>Moderate heat; Ceramic is a big insulation upgrade over rock</td></tr>
+      <tr><td>Metal Refinery</td><td>1,200 W</td><td>Refined metal in bulk; Steel</td><td>Dumps ~80% of the metal's heat-of-melting into 400 kg of piped liquid coolant + ~16 kDTU/s building heat. MUST be cooled.</td></tr>
+      <tr><td>Glass Forge</td><td>1,200 W</td><td>Glass (from Sand); Fiberglass</td><td>Very hot; needs coolant like the Refinery</td></tr>
+      <tr><td>Polymer Press</td><td>240 W</td><td>Plastic (from Petroleum)</td><td>Emits CO2 + heat; see <a href="#s18-uses">18.2</a></td></tr>
+    </table>
+
+    <h3 id="s17-cooling">17.2 The Industrial Brick (shared cooling)</h3>
+    <p>The community-standard solution: build all the hot refinement machines in one sealed, insulated room and cool them with a single Aquatuner + Steam Turbine loop (<a href="#s15-aquatuner">15.3</a>).</p>
+    <ul>
+      <li><strong>Coolant loop:</strong> run a liquid (Petroleum or Super Coolant resists boiling; water works early) through the Metal Refinery and Glass Forge as their coolant, then through the Aquatuner to be re-chilled. The Refinery accepts coolant out at up to 10 kg/s.</li>
+      <li><strong>Capture building heat with the steam room:</strong> let the machines sit in (or vent heat into) the sealed steam chamber so their ~16 kDTU/s radiant heat also feeds the Steam Turbine instead of leaking to the base.</li>
+      <li><strong>Floor it with high thermal mass</strong> (Granite/Igneous) to flatten spikes, and wall it with Insulated Tile + Mechanized Airlocks.</li>
+      <li>Add new industry to the SAME cooling loop rather than building a second one — one well-sized brick scales a long way.</li>
+      <li>Pick the right coolant: water boils at 100&deg;C, so for a Metal Refinery making Steel (huge heat) use Petroleum or crude oil as coolant, or it flashes to steam in the pipe.</li>
+    </ul>
+
+    <h3 id="s17-steel">17.3 Steel Production</h3>
+    <ul>
+      <li><strong>Recipe (Metal Refinery):</strong> 70 kg Iron + 20 kg Refined Carbon + 10 kg Lime → 100 kg Steel.</li>
+      <li><strong>Refined Carbon</strong> comes from Coal in the Kiln/Rock Crusher; <strong>Lime</strong> from egg shells or Fossil (Rock Crusher).</li>
+      <li>Steel resists high temperature and is required for heat-facing builds: Steam Turbines, Aquatuners in hot rooms, mesh/tiles around volcanoes and magma, and Space-facing structures.</li>
+      <li>Each Steel batch dumps a large amount of heat (~138&deg;C rise) into the coolant — never make Steel with a water coolant loop; use petroleum or a steam box.</li>
+    </ul>
+  </div>
+
+  <!-- ================================================================ -->
+  <div class="section">
+    <h2 id="s18">18. Oil, Petroleum &amp; Exosuits <a class="back" href="#top">^ top</a></h2>
+    <p>The Oil Biome unlocks the late-game material economy: petroleum power, plastic, and the jet/atmo suits that let Dupes work safely in hostile biomes and space.</p>
+
+    <h3 id="s18-oil">18.1 Oil Refinery Chain</h3>
+    <ul>
+      <li><strong>Crude Oil</strong> comes from the Oil Biome (pump from pools) or from an Oil Well / Oil Reservoir. It's hot (~150&deg;C+) — handle with insulated pipe.</li>
+      <li><strong>Oil Refinery</strong> (480 W, must be Dupe-operated): <strong>10 kg/s Crude Oil → 5 kg/s Petroleum + 90 g/s Natural Gas</strong>, both output at ≥75&deg;C.</li>
+      <li>The Natural Gas byproduct is free generator fuel — pipe it to a Natural Gas Generator (<a href="#s6-progression">6.2</a>).</li>
+      <li>Cool the hot petroleum output before storing or burning it; petroleum solidifies below &minus;57&deg;C and is a heat problem above.</li>
+    </ul>
+
+    <h3 id="s18-uses">18.2 Petroleum Uses</h3>
+    <table>
+      <tr><th>Use</th><th>Building</th><th>Result</th></tr>
+      <tr><td>Power</td><td>Petroleum Generator</td><td>2,000 W — the highest single-building output (<a href="#s6-generators">6.1</a>)</td></tr>
+      <tr><td>Plastic</td><td>Polymer Press</td><td>Petroleum → Plastic (for advanced buildings, suits, tubes)</td></tr>
+      <tr><td>Suit fuel</td><td>Exosuit Forge</td><td>Petroleum → Jet Suit (flight; great for surface/space)</td></tr>
+    </table>
+
+    <h3 id="s18-exosuit">18.3 Exosuits &amp; Exploration</h3>
+    <p>Atmo Suits let Dupes ignore the local atmosphere — no suffocation, full germ immunity, and protection from heat/cold for a while. Essential before mining Slime, Caustic, Oil, or surface/space.</p>
+    <ul>
+      <li><strong>Atmo Suit Dock</strong> (1×3 tiles, 120 W only while charging, stores 200 kg O2): recharges and empties suits. Pipe <strong>Oxygen only</strong> into it — other gases damage it. It overheats at 75&deg;C, so keep the dock area cool.</li>
+      <li><strong>Atmo Suit Checkpoint:</strong> no power/gas. Dupes put a suit ON crossing toward the hazard and take it OFF coming back. Place the Checkpoint <em>between</em> the docks and the dangerous area; build the Dock adjacent, on the side <em>opposite</em> the arrow.</li>
+      <li>You can line up a ROW of Docks against one Checkpoint (all adjacent) so several Dupes suit up without a queue. Click "Deliver Suit" on each dock so a Dupe stocks it.</li>
+      <li><strong>Charge:</strong> a full suit lasts ~1.25 cycles of oxygen; the dock tops it up (~1 s charge per 18 s worn).</li>
+      <li><strong>Germ caveat:</strong> un-suiting at a dock swaps surface germs into the suit's O2 tank — a slime-contaminated suit can later infect its wearer. Keep the suit-up area clean, or run suit O2 from a clean source.</li>
+      <li>Build the suit checkpoint at the edge of your clean base, facing the mining frontier. Atmo Suits do slow Dupes down (Athletics penalty) — only require suits where the atmosphere is actually dangerous.</li>
     </ul>
   </div>
 
