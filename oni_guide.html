@@ -15,9 +15,31 @@
     height: 100vh;
     overflow-y: auto;
     border-right: 1px solid #000;
-    padding: 12px;
+    padding: 44px 12px 12px;
     background: #fff;
+    z-index: 900;
+    transition: transform 0.2s ease;
   }
+
+  /* Toggle button — always visible, top-left */
+  #toc-toggle {
+    position: fixed;
+    top: 8px; left: 8px;
+    z-index: 1000;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1;
+    padding: 7px 10px;
+    background: #fff;
+    color: #000;
+    border: 1px solid #000;
+    cursor: pointer;
+  }
+  #toc-toggle:hover { background: #000; color: #fff; }
+
+  /* Collapsed state (any viewport) */
+  body.nav-collapsed #toc { transform: translateX(-100%); }
+  body.nav-collapsed #content { margin-left: 0; }
 
   #toc h2 { font-size: 13px; margin-bottom: 8px; border-bottom: 1px solid #000; padding-bottom: 4px; }
 
@@ -32,6 +54,23 @@
     margin-left: 260px;
     padding: 20px 80px 20px 40px;
     max-width: 900px;
+    transition: margin-left 0.2s ease;
+  }
+
+  /* Backdrop behind the nav when open on small screens */
+  #toc-backdrop { display: none; }
+
+  @media (max-width: 768px) {
+    /* On phones the nav overlays content; content is always full width */
+    #content { margin-left: 0; padding: 56px 16px 20px; }
+    #toc { width: 82%; max-width: 300px; box-shadow: 2px 0 8px rgba(0,0,0,0.3); }
+    body:not(.nav-collapsed) #toc-backdrop {
+      display: block;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 800;
+    }
   }
 
   h1 { font-size: 16px; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 16px; }
@@ -59,6 +98,9 @@
 </style>
 </head>
 <body>
+
+<button id="toc-toggle" aria-expanded="true" aria-controls="toc">&#9776; MENU</button>
+<div id="toc-backdrop"></div>
 
 <nav id="toc">
   <h2>CONTENTS</h2>
@@ -1913,5 +1955,38 @@ PER-FLOOR TAP:
   </div>
 
 </div>
+
+<script>
+  (function () {
+    var body = document.body;
+    var toggle = document.getElementById('toc-toggle');
+    var toc = document.getElementById('toc');
+    var backdrop = document.getElementById('toc-backdrop');
+    var mq = window.matchMedia('(max-width: 768px)');
+
+    function setCollapsed(collapsed) {
+      body.classList.toggle('nav-collapsed', collapsed);
+      toggle.setAttribute('aria-expanded', String(!collapsed));
+      toggle.innerHTML = collapsed ? '&#9776; MENU' : '&#10005; CLOSE';
+    }
+
+    // Start collapsed on phones so the panel never obstructs content; open on desktop.
+    setCollapsed(mq.matches);
+
+    toggle.addEventListener('click', function () {
+      setCollapsed(!body.classList.contains('nav-collapsed'));
+    });
+
+    // Tap a link on a phone: jump, then close the panel.
+    toc.addEventListener('click', function (e) {
+      if (e.target.tagName === 'A' && mq.matches) setCollapsed(true);
+    });
+
+    backdrop.addEventListener('click', function () { setCollapsed(true); });
+
+    // Re-sync default when crossing the breakpoint (e.g. phone rotation).
+    mq.addEventListener('change', function (e) { setCollapsed(e.matches); });
+  })();
+</script>
 </body>
 </html>
