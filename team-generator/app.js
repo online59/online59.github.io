@@ -802,6 +802,28 @@ function countdown(result) {
   later(() => reveal(result), 3000);
 }
 
+// Try every combination of team columns (cols) and per-team name columns (k) and keep the one
+// with the largest font that still fits one projector screen.
+function revealLayout(T, most, teams) {
+  const W = Math.min(innerWidth, 1700) - 2 * clamp(innerWidth * .04, 16, 56);
+  const H = innerHeight - 230;
+  const longest = Math.min(26, Math.max(...teams.flatMap(t => t.members.map(p => p.name.length))));
+  const GAP = 20, SUB_GAP = 14, LINE = 2.15 * 16, CHAR = .53 * 16;
+  let best = null;
+  for (let cols = 1; cols <= T; cols++) {
+    const rows = Math.ceil(T / cols);
+    if (cols > 1 && Math.ceil(T / (cols - 1)) === rows) continue;
+    const cardW = (W - (cols - 1) * GAP) / cols;
+    const cardH = (H - (rows - 1) * GAP) / rows - 100;
+    for (let k = 1; k <= 4 && k <= most; k++) {
+      const subW = (cardW - 24 - (k - 1) * SUB_GAP) / k;
+      const fs = Math.min(1.4, cardH / (Math.ceil(most / k) * LINE), (subW - 76) / (longest * CHAR));
+      if (!best || fs > best.fs + .02) best = { cols, k, fs };
+    }
+  }
+  return { cols: best.cols, k: best.k, fs: clamp(best.fs, .8, 1.4).toFixed(2) };
+}
+
 function reveal(result) {
   state.result = result;
   state.view = 'teams';
@@ -810,22 +832,14 @@ function reveal(result) {
   const T = teams.length;
   const total = teams.reduce((s, t) => s + t.members.length, 0);
   const most = Math.max(...teams.map(t => t.members.length));
-  // fit every team on one projector screen where possible: fewest rows, then font sized to the height left
-  const maxCols = Math.max(1, Math.floor((Math.min(innerWidth, 1700) - 80) / 250));
-  const rows = Math.ceil(T / Math.min(T, maxCols));
-  const cols = Math.ceil(T / rows);
-  const perCard = (innerHeight - 230 - (rows - 1) * 20) / rows - 100;
-  const cardW = (Math.min(innerWidth, 1700) - 2 * clamp(innerWidth * .04, 16, 56) - (cols - 1) * 20) / cols;
-  const longest = Math.min(26, Math.max(...teams.flatMap(t => t.members.map(p => p.name.length))));
-  const fitW = (cardW - 100) / (longest * .53 * 16);
-  const fs = clamp(Math.min(perCard / (most * 2.15 * 16), fitW), .8, 1.4).toFixed(2);
+  const { cols, k, fs } = revealLayout(T, most, teams);
   const after = (T - 1) * 380 + 650 + most * 70 + 600;
   $('#stage-reveal').innerHTML = `
     <header class="rv-head"><div class="kicker">${total} people · ${T} teams</div><h2>Meet your <em>teams</em></h2></header>
-    <div class="rv-grid" style="--cols:${cols};--fs:${fs}rem">${teams.map((t, i) => `
+    <div class="rv-grid" style="--cols:${cols};--k:${k};--fs:${fs}rem">${teams.map((t, i) => `
       <article class="rv-team" style="--h:${TEAM_HUES[i % TEAM_HUES.length]};--d:${i}">
         <div class="rv-top"><span class="rv-no">TEAM ${String(i + 1).padStart(2, '0')}</span><h3>${esc(t.name)}</h3></div>
-        <ol>${t.members.map((p, j) => `<li style="--j:${j}"><span class="n">${esc(p.name)}</span>` +
+        <ol style="--lines:${Math.ceil(t.members.length / k)}">${t.members.map((p, j) => `<li style="--j:${j}"><span class="n">${esc(p.name)}</span>` +
           `<span class="ab" style="--c:${levelColor(p.level)}">${esc(abbr(p.level))}</span></li>`).join('')}</ol>
       </article>`).join('')}</div>
     <div class="rv-actions" style="--after:${after}ms">
