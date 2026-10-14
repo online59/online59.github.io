@@ -33,11 +33,12 @@ body.on-stage { overflow: hidden; }
   background: radial-gradient(circle at 32% 26%, #3B4668 0%, #1C2030 55%, var(--ink) 100%);
   color: #fff; cursor: pointer;
   box-shadow: 0 40px 90px -30px rgba(23, 25, 31, .55), inset 0 1px 0 rgba(255, 255, 255, .18), inset 0 -12px 30px rgba(0, 0, 0, .25);
-  transition: transform .35s cubic-bezier(.2, .8, .2, 1), box-shadow .35s;
+  /* hover uses `scale`, not `transform`: the breathe animation owns transform, and animated properties skip transitions */
+  transition: scale .55s cubic-bezier(.2, .8, .2, 1), box-shadow .55s ease;
   animation: breathe 4s ease-in-out infinite;
 }
-.big-go:hover { transform: scale(1.04); box-shadow: 0 50px 110px -30px rgba(37, 71, 201, .55), inset 0 1px 0 rgba(255, 255, 255, .2); }
-.big-go:active { transform: scale(.98); }
+.big-go:hover { scale: 1.06; box-shadow: 0 50px 110px -30px rgba(37, 71, 201, .55), inset 0 1px 0 rgba(255, 255, 255, .2); }
+.big-go:active { scale: 1.01; transition-duration: .12s; }
 .big-go:focus-visible { outline: none; }
 @keyframes breathe { 50% { transform: scale(1.015); } }
 .big-go .core { position: relative; z-index: 1; display: grid; place-items: center; height: 100%; }
