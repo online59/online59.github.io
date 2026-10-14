@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Team Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="stage.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
+        <rect x="1" y="1" width="38" height="38" rx="11" fill="var(--ink)"/>
+        <circle cx="14" cy="15" r="4.5" fill="var(--signal)"/>
+        <circle cx="26" cy="15" r="4.5" fill="#fff"/>
+        <circle cx="14" cy="27" r="4.5" fill="#fff"/>
+        <circle cx="26" cy="27" r="4.5" fill="var(--accent-2)"/>
+      </svg>
+      <div>
+        <div class="kicker">Team Generator</div>
+        <h1>Balanced teams, <em>in one click.</em></h1>
+      </div>
+    </div>
+    <div class="privacy" title="Files are parsed locally with JavaScript. Nothing is uploaded.">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 10V8a6 6 0 1 1 12 0v2h1a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1h1Zm2 0h8V8a4 4 0 1 0-8 0v2Z"/></svg>
+      Your data stays in this browser
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="setup">
+      <section class="panel" style="--i:0">
+        <h2><span class="num">01</span>Roster</h2>
+        <label class="drop" id="drop">
+          <input type="file" id="file" accept=".xlsx,.xls,.xlsm,.csv,.ods" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0-12 4.5 4.5M12 3 7.5 7.5M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>
+          <span><b>Drop an Excel file</b> or click to browse</span>
+          <small>.xlsx · .xls · .csv — columns: Name, Age, Position, Gender (Department optional)</small>
+        </label>
+        <div class="row-btns">
+          <button class="btn ghost sm" id="btn-template">Download template</button>
+          <button class="btn ghost sm" id="btn-sample">Try sample data</button>
+        </div>
+        <div id="levels-box"></div>
+      </section>
+
+      <section class="panel" style="--i:1">
+        <h2><span class="num">02</span>Who's in</h2>
+        <div class="field">
+          <label>Age range</label>
+          <div class="inline">
+            <input type="number" id="f-age-min" placeholder="any" min="0" max="120">
+            <span class="to">to</span>
+            <input type="number" id="f-age-max" placeholder="any" min="0" max="120">
+          </div>
+        </div>
+        <div class="field"><label>Gender</label><div class="checks" id="f-genders"></div></div>
+        <div class="field"><label>Seniority</label><div class="checks" id="f-levels"></div></div>
+        <p class="hint" id="f-summary"></p>
+      </section>
+
+      <section class="panel" style="--i:2">
+        <h2><span class="num">03</span>Team shape</h2>
+        <div class="seg" id="shape-mode">
+          <button data-v="count">Number of teams</button>
+          <button data-v="size">Max people per team</button>
+        </div>
+        <div class="stepper">
+          <button data-step="-1" aria-label="Decrease">−</button>
+          <input type="number" id="shape-n" min="1">
+          <button data-step="1" aria-label="Increase">+</button>
+        </div>
+        <div class="field">
+          <label for="shape-naming">Team names</label>
+          <select id="shape-naming">
+            <option value="phonetic">Alpha, Bravo, Charlie…</option>
+            <option value="numbers">Team 1, Team 2, Team 3…</option>
+          </select>
+        </div>
+        <p class="hint" id="shape-preview"></p>
+      </section>
+
+      <section class="panel" style="--i:3">
+        <h2><span class="num">04</span>Balance</h2>
+        <p class="hint">Spread these evenly across teams. <b>Priority</b> wins over the others.</p>
+        <div id="balance"></div>
+      </section>
+
+      <section class="panel" style="--i:4">
+        <h2><span class="num">05</span>Rules <span class="opt">optional</span></h2>
+        <div id="rules"></div>
+        <div class="presets" id="presets"></div>
+        <button class="btn ghost sm" id="btn-add-rule">+ Add rule</button>
+      </section>
+
+      <div class="generate-bar">
+        <button class="btn primary" data-act="open-stage">
+          <span class="lbl">Present on stage</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m0 0-5-5m5 5-5 5"/></svg>
+        </button>
+      </div>
+    </aside>
+
+    <section class="main">
+      <nav class="tabs" role="tablist">
+        <button role="tab" data-view="roster">Roster <span class="badge" id="tab-roster-n">0</span></button>
+        <button role="tab" data-view="teams">Teams <span class="badge" id="tab-teams-n">–</span></button>
+      </nav>
+      <div id="view-roster" class="view"></div>
+      <div id="view-teams" class="view"></div>
+    </section>
+  </main>
+
+  <dialog id="import-dlg">
+    <form method="dialog" class="dlg">
+      <header>
+        <div>
+          <div class="kicker">Import</div>
+          <h3 id="imp-file">file.xlsx</h3>
+        </div>
+        <button class="icon-btn" value="cancel" aria-label="Close">✕</button>
+      </header>
+      <div class="dlg-body">
+        <div class="field" id="imp-sheet-field">
+          <label for="imp-sheet">Sheet</label>
+          <select id="imp-sheet"></select>
+        </div>
+        <p class="hint">Match your columns. We guessed from the header row — adjust if needed.</p>
+        <div class="map-grid" id="imp-map"></div>
+        <div class="preview-wrap"><table class="preview" id="imp-preview"></table></div>
+        <p class="hint" id="imp-stats"></p>
+        <div class="seg sm" id="imp-mode">
+          <button type="button" data-v="replace">Replace roster</button>
+          <button type="button" data-v="append">Add to roster</button>
+        </div>
+      </div>
+      <footer>
+        <button class="btn ghost" value="cancel">Cancel</button>
+        <button class="btn primary" id="imp-go" value="ok" autofocus>Import</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <section id="stage" class="stage" hidden>
+    <div class="stage-chrome">
+      <button class="stage-btn" data-act="exit-stage" title="Back to setup (Esc)">← Setup</button>
+      <button class="stage-btn" data-act="fullscreen" title="Toggle full screen (F)">⛶</button>
+    </div>
+
+    <div class="st-phase st-idle" data-phase="idle">
+      <button class="big-go" id="stage-go">
+        <span class="halo"></span>
+        <span class="ring"></span><span class="ring r2"></span>
+        <span class="core"><b>Generate<br>teams</b></span>
+      </button>
+    </div>
+
+    <div class="st-phase st-analyze" data-phase="analyze">
+      <div class="orbit" id="orbit"></div>
+      <div class="an-core">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="46" class="trk"/>
+          <circle cx="50" cy="50" r="46" class="prg" id="an-ring"/>
+        </svg>
+        <div class="an-pct"><b id="an-pct">0</b><small>%</small></div>
+        <div class="an-step" id="an-step"></div>
+      </div>
+    </div>
+
+    <div class="st-phase st-count" data-phase="count" id="stage-count"></div>
+
+    <div class="st-phase st-reveal" data-phase="reveal" id="stage-reveal"></div>
+  </section>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
