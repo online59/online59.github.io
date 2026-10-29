@@ -188,6 +188,8 @@ input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px v
 .bal .t { font-size: 14px; font-weight: 500; }
 .bal .d { font-size: 12px; color: var(--muted); }
 .bal.disabled { opacity: .45; pointer-events: none; }
+#chief-apart .bal { padding: 0 0 12px; margin-bottom: 12px; border-bottom: 1px solid var(--line-2); }
+#chief-apart .bal.warn .d { color: #A4561B; }
 
 /* ---------- rules ---------- */
 .rule {

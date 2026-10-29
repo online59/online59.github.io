@@ -10,8 +10,9 @@ const avg = xs => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
 
 const STORE_KEY = 'team-generator.v1';
 const GENDERS = { M: 'Male', F: 'Female', X: 'Unspecified' };
-const KNOWN_RANK = { 'Director': 40, 'Deputy Director': 35, 'Associate Director': 30, 'Assistant Director': 28, 'Senior Manager': 25, 'Manager': 20 };
-const ABBR = { 'Director': 'DIR', 'Deputy Director': 'DD', 'Associate Director': 'AD', 'Assistant Director': 'ASD', 'Senior Manager': 'SM', 'Manager': 'MGR', 'Unspecified': '—' };
+const CHIEF = 'Chief';
+const KNOWN_RANK = { 'Chief': 50, 'Director': 40, 'Deputy Director': 35, 'Associate Director': 30, 'Assistant Director': 28, 'Senior Manager': 25, 'Manager': 20 };
+const ABBR = { 'Chief': 'CXO', 'Director': 'DIR', 'Deputy Director': 'DD', 'Associate Director': 'AD', 'Assistant Director': 'ASD', 'Senior Manager': 'SM', 'Manager': 'MGR', 'Unspecified': '—' };
 const LEVEL_COLORS = ['#1F2A44', '#2547C9', '#0E8F7E', '#C77A12', '#B0417A', '#6B7280', '#5B4BC4', '#8A5A2B'];
 const TEAM_HUES = ['#2547C9', '#F08A3C', '#1D8A57', '#C2387A', '#0E8FA3', '#8A5A2B', '#5B4BC4', '#B8860B', '#D1453B', '#3F7D20'];
 const PHONETIC = ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot', 'Golf', 'Hotel', 'India', 'Juliett', 'Kilo', 'Lima', 'Mike', 'November', 'Oscar', 'Papa', 'Quebec', 'Romeo', 'Sierra', 'Tango', 'Uniform', 'Victor', 'Whiskey', 'X-ray', 'Yankee', 'Zulu'];
@@ -37,6 +38,7 @@ const defaults = () => ({
   shape: { mode: 'count', count: 4, size: 6, naming: 'phonetic' },
   balance: { gender: 1, level: 1, age: 1, dept: 1 },
   rules: [],
+  separateChiefs: true,
   result: null,
   view: 'roster',
 });
@@ -62,6 +64,7 @@ function canonLevel(raw) {
   const s = String(raw ?? '').trim().replace(/\s+/g, ' ');
   if (!s) return 'Unspecified';
   const l = s.toLowerCase();
+  if (/\bchief\b|^c[a-z]o$|ประธานเจ้าหน้าที่/.test(l) && !/deputy|assist|vice|รอง|ผู้ช่วย/.test(l)) return CHIEF;
   if (/assist|ผู้ช่วยผู้อำนวยการ/.test(l) && /dir|ผู้อำนวยการ/.test(l)) return 'Assistant Director';
   if (/deputy|รองผู้อำนวยการ/.test(l) && /dir|ผู้อำนวยการ/.test(l)) return 'Deputy Director';
   if ((/assoc|asso\b|asso\./.test(l) && /dir/.test(l)) || /^a\.?\s?d\.?$/.test(l)) return 'Associate Director';
@@ -256,12 +259,18 @@ function solve(P, T) {
   const ageW = bal.age ? 0.35 * mult(bal.age) : 0;
   const RULE_W = 1000;
   const trivial = !C && !R && !ageW;
+  const isChief = Uint8Array.from(P, p => state.separateChiefs && p.level === CHIEF ? 1 : 0);
 
   function run(iters) {
-    const order = shuffle([...Array(N).keys()]);
+    // Slots go round-robin across teams, so the first T people placed (the chiefs) land in distinct teams.
+    const tOrder = shuffle([...Array(T).keys()]), slots = [];
+    for (let r = 0; slots.length < N; r++) for (const t of tOrder) if (sizes[t] > r) slots.push(t);
+    const idx = shuffle([...Array(N).keys()]);
     const team = new Int32Array(N);
-    let k = 0;
-    sizes.forEach((s, t) => { for (let j = 0; j < s; j++) team[order[k++]] = t; });
+    [...idx.filter(i => isChief[i]), ...idx.filter(i => !isChief[i])].forEach((i, k) => { team[i] = slots[k]; });
+    const chiefIn = new Int32Array(T);
+    for (let i = 0; i < N; i++) chiefIn[team[i]] += isChief[i];
+    const chiefCap = Math.max(...chiefIn);
     const cnt = Array.from({ length: T }, () => new Float64Array(C));
     const rc = Array.from({ length: T }, () => new Float64Array(R));
     const aS = new Float64Array(T), aN = new Float64Array(T);
@@ -289,12 +298,15 @@ function solve(P, T) {
       const i = Math.random() * N | 0, j = Math.random() * N | 0;
       const a = team[i], b = team[j];
       if (a === b) continue;
+      if (isChief[i] !== isChief[j] && chiefIn[isChief[i] ? b : a] >= chiefCap) continue;
       add(i, a, -1); add(j, b, -1); add(i, b, 1); add(j, a, 1);
       const ca = cost(a), cb = cost(b);
       const delta = ca + cb - tc[a] - tc[b];
       const temp = T0 * Math.pow(T1 / T0, it / iters);
       if (delta <= 0 || Math.random() < Math.exp(-delta / temp)) {
         team[i] = b; team[j] = a; tc[a] = ca; tc[b] = cb; total += delta;
+        const moved = isChief[i] - isChief[j];
+        chiefIn[a] -= moved; chiefIn[b] += moved;
         if (total < best - 1e-9) { best = total; bestTeam = team.slice(); }
       } else {
         add(i, b, -1); add(j, a, -1); add(i, a, 1); add(j, b, 1);
@@ -418,7 +430,22 @@ function renderRules() {
       ${issue ? `<div class="warn-msg">${esc(issue)}</div>` : ''}
     </div>`;
   }).join('') : `<p class="hint" style="margin:0 0 10px">No hard rules yet. Add one, e.g. “each team has at least 1 Director”.</p>`;
+  renderChiefApart(P, T);
   renderPresets();
+}
+
+function renderChiefApart(P, T) {
+  const has = state.people.some(p => p.level === CHIEF);
+  const c = P.filter(p => p.level === CHIEF).length;
+  const on = state.separateChiefs;
+  const d = !has ? 'No Chief-level people in your roster'
+    : on && c > T ? `${c} chiefs but only ${T} teams — some will share`
+    : 'Each Chief-level person goes to a different team';
+  $('#chief-apart').innerHTML = `<div class="bal ${has ? '' : 'disabled'} ${on && c > T ? 'warn' : ''}">
+    <div><div class="t">Keep chiefs apart</div><div class="d">${d}</div></div>
+    <div class="seg sm">${[['0', 'Off'], ['1', 'On']].map(([x, l]) =>
+      `<button data-chiefs="${x}" class="${String(+on) === x ? 'on' : ''}">${l}</button>`).join('')}</div>
+  </div>`;
 }
 
 function renderPresets() {
@@ -718,6 +745,7 @@ function analysisSteps(n, t) {
   if (b.level) s.push('Spreading seniority levels');
   if (b.age) s.push('Matching age profiles');
   if (b.dept && hasDept()) s.push('Mixing departments');
+  if (state.separateChiefs && pool().some(p => p.level === CHIEF)) s.push('Separating chief-level staff');
   if (state.rules.length) s.push(`Checking ${state.rules.length} rule${state.rules.length > 1 ? 's' : ''}`);
   s.push(`Optimising ${t} teams`, 'Finalising line-up');
   return s;
@@ -1103,6 +1131,7 @@ document.addEventListener('click', e => {
     }
   }
   if (t.dataset.bal) { state.balance[t.dataset.bal] = +t.dataset.v; save(); renderBalance(); }
+  if (t.dataset.chiefs) { state.separateChiefs = t.dataset.chiefs === '1'; save(); renderRules(); }
   if (t.closest('#shape-mode')) {
     state.shape.mode = t.dataset.v; save(); renderShape(); renderRules(); renderKpis();
   }
